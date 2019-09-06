@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+    <AssemblyName>ivaldez.Sql.SqlMergeQueryObject</AssemblyName>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <Copyright>Copyright 2019 Jason Valdez</Copyright>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/JasonDV/MergeQueryObject</PackageProjectUrl>
+    <PackageReleaseNotes></PackageReleaseNotes>
+    <Description>An abstraction for the SQL Merge statement with many options and efficiencies.</Description>
+    <NeutralLanguage>en</NeutralLanguage>
+    <Version>1.0.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <Authors>Jason Valdez</Authors>
+    <Company>ivaldez</Company>
+    <RepositoryUrl>https://github.com/JasonDV/MergeQueryObject</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>database mssql merge</PackageTags>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PackageId>ivaldez.Sql.SqlMergeQueryObject</PackageId>
+    <Product>ivaldez.Sql.SqlMergeQueryObject</Product>
+    <RootNamespace>ivaldez.Sql.SqlMergeQueryObject</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Data.SqlClient" Version="4.5.1" />
+    <PackageReference Include="Dapper" Version="2.0.4" />
+    <PackageReference Include="ivaldez.Sql.SqlBulkLoader" Version="1.0.0.7" />
+  </ItemGroup>
+
+</Project>
