@@ -7,9 +7,10 @@ namespace ivaldez.Sql.IntegrationTests.Data
 {
     public class TestingDatabaseService
     {
+        private static readonly string DatabaseServer = "localhost";
         private static readonly string DatabaseName = "iValdezTest";
-        private readonly string _connectionString = $"Data Source=localhost;Initial Catalog={DatabaseName};Integrated Security=true;";
-        private readonly string _connectionStringMaster = $"Data Source=localhost;Initial Catalog=master;Integrated Security=true;";
+        private readonly string _connectionString = $"Data Source={DatabaseServer};Initial Catalog={DatabaseName};Integrated Security=true;";
+        private readonly string _connectionStringMaster = $"Data Source={DatabaseServer};Initial Catalog=master;Integrated Security=true;";
 
         public IEnumerable<T> Query<T>(string sql, object param = null)
         {
@@ -21,16 +22,6 @@ namespace ivaldez.Sql.IntegrationTests.Data
                 {
                     yield return dto;
                 }
-            }
-        }
-
-        public int Insert<T>(string sql, IEnumerable<T> dtos)
-        {
-            using (var conn = new SqlConnection(_connectionString))
-            {
-                var result = conn.Execute(sql, dtos);
-
-                return result;
             }
         }
 
@@ -49,7 +40,9 @@ namespace ivaldez.Sql.IntegrationTests.Data
             using (var conn = new SqlConnection(_connectionString))
             {
                 conn.Open();
+
                 action(conn);
+
                 conn.Close();
             }
         }

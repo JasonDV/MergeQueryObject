@@ -82,11 +82,19 @@
     <Compile Include="Data\SampleSurrogateKeyDifferentNamePrimaryKeyDto.cs" />
     <Compile Include="Data\SampleSurrogateKeyDifferentNamesDto.cs" />
     <Compile Include="Data\TestingDatabaseService.cs" />
-    <Compile Include="Data\TestingDataGateway.cs" />
-    <Compile Include="MergeQuery\ExpressionToSqlTests.cs" />
-    <Compile Include="MergeQuery\MergeQueryObjectTests.cs" />
+    <Compile Include="Data\TestingDataService.cs" />
+    <Compile Include="ExpressionTo\ExpressionToSqlTests.cs" />
+    <Compile Include="MergeQuery\MergeQueryObjectTestHelper.cs" />
+    <Compile Include="MergeQuery\MergeQueryObjectTestsForRequestOptions.cs" />
     <Compile Include="Data\SampleCompositeKeyDto.cs" />
     <Compile Include="Data\SampleSurrogateKeyDto.cs" />
+    <Compile Include="MergeQuery\MergeQueryObjectTestsForCombinedActions.cs" />
+    <Compile Include="MergeQuery\MergeQueryObjectTestsForDeletes.cs" />
+    <Compile Include="MergeQuery\MergeQueryObjectTestsForPrimaryKey.cs" />
+    <Compile Include="MergeQuery\MergeQueryObjectTestsForRemappingBehavior.cs" />
+    <Compile Include="MergeQuery\MergeQueryObjectTestsForSourceTableTypes.cs" />
+    <Compile Include="MergeQuery\MergeQueryObjectTestsForTargetDataSetFilters.cs" />
+    <Compile Include="MergeQuery\MergeQueryObjectTestsForUpdates.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
