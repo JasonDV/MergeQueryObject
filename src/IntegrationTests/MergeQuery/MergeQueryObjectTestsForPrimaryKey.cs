@@ -49,14 +49,14 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
 
             helper.DataService.Merge(request);
 
-            var databaseDtos = helper.DataService.GetAllSampleSurrogateKey().ToArray();
+            var sourceDtos = helper.DataService.GetAllSampleSurrogateKey().ToArray();
 
-            var firstDto = databaseDtos.First(x => x.TextValue == "JJ");
+            var firstDto = sourceDtos.First(x => x.TextValue == "JJ");
             firstDto.Pk.Should().Be(100);
             firstDto.IntValue.Should().Be(100);
             firstDto.DecimalValue.Should().Be(100.99m);
 
-            var secondDto = databaseDtos.First(x => x.TextValue == "ZZ");
+            var secondDto = sourceDtos.First(x => x.TextValue == "ZZ");
             secondDto.Pk.Should().Be(200);
             secondDto.Pk.Should().BeGreaterThan(0);
             secondDto.IntValue.Should().Be(999);
@@ -100,13 +100,13 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
 
             helper.DataService.Merge(request);
 
-            var databaseDtos = helper.DataService.GetAllSampleSurrogateKey().ToArray();
+            var sourceDtos = helper.DataService.GetAllSampleSurrogateKey().ToArray();
 
-            var firstDto = databaseDtos.First(x => x.TextValue == "JJ");
+            var firstDto = sourceDtos.First(x => x.TextValue == "JJ");
             firstDto.IntValue.Should().Be(100);
             firstDto.DecimalValue.Should().Be(100.99m);
 
-            var secondDto = databaseDtos.First(x => x.TextValue == "ZZ");
+            var secondDto = sourceDtos.First(x => x.TextValue == "ZZ");
             secondDto.IntValue.Should().Be(999);
             secondDto.DecimalValue.Should().Be(123.45m);
         }

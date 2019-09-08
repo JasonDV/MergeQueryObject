@@ -9,7 +9,7 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
     public class MergeQueryObjectTestsForCombinedActions
     {
         [Fact]
-        public void ShouldUpdateOnlyAndDeleteWhenFlagged()
+        public void ShouldUpdateOnlyAndDeleteWhenFlaggedInRequest()
         {
             var helper = new MergeQueryObjectTestHelper();
             helper.DataService.DropTable();
@@ -76,11 +76,11 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
 
             helper.DataService.Merge(request);
 
-            var databaseDtos = helper.DataService.GetAllSampleCompositeKeyDto().ToArray();
+            var sampleDtos = helper.DataService.GetAllSampleCompositeKeyDto().ToArray();
 
-            databaseDtos.Length.Should().Be(1);
+            sampleDtos.Length.Should().Be(1);
 
-            var firstDto = databaseDtos.First(x => x.Pk1 == 1);
+            var firstDto = sampleDtos.First(x => x.Pk1 == 1);
             firstDto.Pk2.Should().Be("A");
             firstDto.TextValue.Should().Be("zz");
             firstDto.IntValue.Should().Be(999);

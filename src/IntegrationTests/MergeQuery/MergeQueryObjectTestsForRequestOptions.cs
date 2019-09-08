@@ -42,13 +42,13 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
 
             helper.DataService.Merge(request);
 
-            var databaseDtos = helper.DataService.GetAllSampleSurrogateKey().ToArray();
+            var sourceDtos = helper.DataService.GetAllSampleSurrogateKey().ToArray();
 
-            var firstDto = databaseDtos.First(x => x.TextValue == "JJ");
+            var firstDto = sourceDtos.First(x => x.TextValue == "JJ");
             firstDto.IntValue.Should().Be(100);
             firstDto.DecimalValue.Should().Be(100.99m);
 
-            var secondDto = databaseDtos.First(x => x.TextValue == "ZZ");
+            var secondDto = sourceDtos.First(x => x.TextValue == "ZZ");
             secondDto.IntValue.Should().Be(999);
             secondDto.DecimalValue.Should().Be(123.45m);
         }
@@ -91,14 +91,14 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
 
             helper.DataService.Merge(request);
 
-            var databaseDtos = helper.DataService.GetAllSampleSurrogateKey().ToArray();
+            var sourceDtos = helper.DataService.GetAllSampleSurrogateKey().ToArray();
 
-            var firstDto = databaseDtos.First(x => x.Pk == 100);
+            var firstDto = sourceDtos.First(x => x.Pk == 100);
             firstDto.TextValue.Should().Be("JJ");
             firstDto.IntValue.Should().Be(100);
             firstDto.DecimalValue.Should().Be(100.99m);
 
-            var secondDto = databaseDtos.First(x => x.Pk == 200);
+            var secondDto = sourceDtos.First(x => x.Pk == 200);
             secondDto.TextValue.Should().Be("ZZ");
             secondDto.IntValue.Should().Be(999);
             secondDto.DecimalValue.Should().Be(123.45m);
@@ -141,13 +141,13 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
 
             helper.DataService.Merge(request);
 
-            var databaseDtos = helper.DataService.GetAllSampleSurrogateKey().ToArray();
+            var sourceDtos = helper.DataService.GetAllSampleSurrogateKey().ToArray();
 
-            var firstDto = databaseDtos.First(x => x.TextValue == "JJ");
+            var firstDto = sourceDtos.First(x => x.TextValue == "JJ");
             firstDto.IntValue.Should().Be(100);
             firstDto.DecimalValue.Should().Be(100.99m);
 
-            var secondDto = databaseDtos.First(x => x.TextValue == "ZZ");
+            var secondDto = sourceDtos.First(x => x.TextValue == "ZZ");
             secondDto.IntValue.Should().Be(999);
             secondDto.DecimalValue.Should().Be(123.45m);
         }

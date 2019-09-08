@@ -39,9 +39,9 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
 
             helper.DataService.Merge(request);
 
-            var databaseDtos = helper.DataService.GetAllSampleCompositeKeyDto().ToArray();
+            var sampleDtos = helper.DataService.GetAllSampleCompositeKeyDto().ToArray();
 
-            var firstDto = databaseDtos.First(x => x.Pk1 == 1);
+            var firstDto = sampleDtos.First(x => x.Pk1 == 1);
             firstDto.Pk2.Should().Be("A");
             firstDto.TextValue.Should().Be("JJ");
             firstDto.IntValue.Should().Be(100);
@@ -74,9 +74,9 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
 
             helper.DataService.Merge(request2);
 
-            var databaseDtos2 = helper.DataService.GetAllSampleCompositeKeyDto().ToArray();
+            var sampleDtos2 = helper.DataService.GetAllSampleCompositeKeyDto().ToArray();
 
-            var firstDto2 = databaseDtos2.First(x => x.Pk1 == 1);
+            var firstDto2 = sampleDtos2.First(x => x.Pk1 == 1);
             firstDto2.Pk2.Should().Be("A");
             firstDto2.TextValue.Should().Be("JJ_Partial");
             firstDto2.IntValue.Should().Be(100);
@@ -123,15 +123,15 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
 
             helper.DataService.Merge(request);
 
-            var databaseDtos = helper.DataService.GetAllSampleCompositeKeyDto().ToArray();
+            var sampleDtos = helper.DataService.GetAllSampleCompositeKeyDto().ToArray();
 
-            var firstDto = databaseDtos.First(x => x.Pk1 == 1);
+            var firstDto = sampleDtos.First(x => x.Pk1 == 1);
             firstDto.Pk2.Should().Be("A");
             firstDto.TextValue.Should().Be("JJ");
             firstDto.IntValue.Should().Be(100);
             firstDto.DecimalValue.Should().Be(100.99m);
 
-            var secondDto = databaseDtos.First(x => x.Pk1 == 2);
+            var secondDto = sampleDtos.First(x => x.Pk1 == 2);
             secondDto.Pk2.Should().Be("B");
             secondDto.TextValue.Should().Be("ZZ");
             secondDto.IntValue.Should().Be(999);
@@ -265,21 +265,21 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
 
             helper.DataService.Merge(request);
 
-            var databaseDtos = helper.DataService.GetAllSampleCompositeKeyDto().ToArray();
+            var sourceDtos = helper.DataService.GetAllSampleCompositeKeyDto().ToArray();
 
-            var firstDto = databaseDtos.First(x => x.Pk1 == 1);
+            var firstDto = sourceDtos.First(x => x.Pk1 == 1);
             firstDto.Pk2.Should().Be("A");
             firstDto.TextValue.Should().Be("zz");
             firstDto.IntValue.Should().Be(999);
             firstDto.DecimalValue.Should().Be(999);
 
-            var secondDto = databaseDtos.First(x => x.Pk1 == 2);
+            var secondDto = sourceDtos.First(x => x.Pk1 == 2);
             secondDto.Pk2.Should().Be("B");
             secondDto.TextValue.Should().Be("ZZ");
             secondDto.IntValue.Should().Be(999);
             secondDto.DecimalValue.Should().Be(123.45m);
 
-            var thirdDto = databaseDtos.First(x => x.Pk1 == 3);
+            var thirdDto = sourceDtos.First(x => x.Pk1 == 3);
             thirdDto.Pk2.Should().Be("B");
             thirdDto.TextValue.Should().Be("AA");
             thirdDto.IntValue.Should().Be(1);
