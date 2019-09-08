@@ -14,6 +14,7 @@ namespace ivaldez.Sql.SqlMergeQueryObject
             ColumnsToExcludeExpressionOnInsert = t => new object[] { };
             ColumnsToExcludeExpressionOnUpdate = t => new object[] { };
             TargetDataSetFilter = null;
+            SqlCommandTimeout = 0;
 
             TargetPropertyNames = typeof(T)
                 .GetProperties()
@@ -25,6 +26,12 @@ namespace ivaldez.Sql.SqlMergeQueryObject
         ///     List of all public properties of the generic type
         /// </summary>
         public string[] TargetPropertyNames { get; }
+
+        /// <summary>
+        ///     The command timeout for the Merge statement at the server.
+        ///     default value is 0
+        /// </summary>
+        public int SqlCommandTimeout { get; }
 
         /// <summary>
         ///     The data set to merge.
@@ -90,6 +97,11 @@ namespace ivaldez.Sql.SqlMergeQueryObject
         ///     A delegate for logging information.
         /// </summary>
         public Action<string> InfoLogger { get; set; } = message => { };
+
+        /// <summary>
+        ///     A delegate for logging errors.
+        /// </summary>
+        public Action<string> ErrorLogger { get; set; } = message => { };
 
         public Action<BulkLoaderContext<T>> BulkLoaderOptions { get; set; } = context => { };
 
