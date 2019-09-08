@@ -54,11 +54,12 @@ namespace ivaldez.Sql.SqlMergeQueryObject
 
                 var sql = GetMergeSql(response.TempTableName, request, response.BulkLoaderRenameRules);
 
-                connection.Execute(sql, null, null, 0, null);
+                request.InfoLogger($"SQL: {sql}");
+                connection.Execute(sql, null, null, request.SqlCommandTimeout, null);
             }
             catch (Exception ex)
             {
-                request.InfoLogger(ex.Message);
+                request.ErrorLogger(ex.Message);
                 throw;
             }
             finally

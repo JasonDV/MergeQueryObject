@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
+﻿using System.Collections.Generic;
 using ivaldez.Sql.SqlMergeQueryObject;
 
 namespace ivaldez.Sql.IntegrationTests.Data
 {
-    public class TestingDataGateway
+    public class TestingDataService
     {
         private readonly TestingDatabaseService _testingDatabaseService;
         private readonly MergeQueryObject _mergeQueryObject;
 
-        public TestingDataGateway(
+        public TestingDataService(
             TestingDatabaseService testingDatabaseService,
             MergeQueryObject mergeQueryObject)
         {
@@ -31,13 +29,7 @@ namespace ivaldez.Sql.IntegrationTests.Data
 
             return _testingDatabaseService.Query<SampleCompositeKeyDto>(sql);
         }
-
-        public void ExecuteWithConnection(Action<SqlConnection> action)
-        {
-            _testingDatabaseService.WithConnection(action);
-        }
-
-
+        
         public void Merge(
             MergeRequest<SampleSurrogateKey> request)
         {
@@ -136,7 +128,10 @@ DROP TABLE dbo.Sample;
 
                 _testingDatabaseService.Execute(sql);
             }
-            catch {}
+            catch
+            {
+                //if this fails it is most likely because the table doesn't exist
+            }
         }
 
         public void Insert(SampleCompositeKeyDto sampleCompositeKeyDto)

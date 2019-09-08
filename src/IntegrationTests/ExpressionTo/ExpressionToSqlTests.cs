@@ -1,9 +1,8 @@
 ﻿using System;
 using FluentAssertions;
-using ivaldez.Sql.SqlMergeQueryObject;
 using Xunit;
 
-namespace ivaldez.Sql.IntegrationTests.MergeQuery
+namespace ivaldez.Sql.IntegrationTests.ExpressionTo
 {
     public class ExpressionToSqlTests
     {
@@ -18,7 +17,7 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
         [Fact]
         public void ShouldParseMultipleOperation()
         {
-            var stuff = new ExpressionToSql();
+            var stuff = new SqlMergeQueryObject.ExpressionToSql();
 
             var sql1 = stuff.GenerateWhereClause<ExpressionToSqlTestsDto>(w => w.IntValue > 10 && w.TextValue == "Jason");
             sql1.Should().Be("WHERE ((IntValue > 10) AND (TextValue = 'Jason'))");
@@ -39,7 +38,7 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
         [Fact]
         public void ShouldParseSingleOperation()
         {
-            var stuff = new ExpressionToSql();
+            var stuff = new SqlMergeQueryObject.ExpressionToSql();
 
             var sql1aa = stuff.GenerateWhereClause<ExpressionToSqlTestsDto>(w => w.IntValue >= 10);
             sql1aa.Should().Be("WHERE (IntValue >= 10)");
@@ -72,7 +71,7 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
         [Fact]
         public void ShouldParseSingleOperationWithVariable()
         {
-            var stuff = new ExpressionToSql();
+            var stuff = new SqlMergeQueryObject.ExpressionToSql();
 
             var abc = 10;
             var sql1 = stuff.GenerateWhereClause<ExpressionToSqlTestsDto>(w => w.IntValue > abc);
@@ -90,7 +89,7 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
         [Fact]
         public void ShouldParseSqlDate()
         {
-            var stuff = new ExpressionToSql();
+            var stuff = new SqlMergeQueryObject.ExpressionToSql();
 
             var start = new DateTime(2019, 7, 1);
             var end = new DateTime(2019, 7, 2);
