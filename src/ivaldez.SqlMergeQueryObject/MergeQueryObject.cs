@@ -7,13 +7,12 @@ using ivaldez.Sql.SqlBulkLoader;
 
 namespace ivaldez.Sql.SqlMergeQueryObject
 {
-    public interface IMergeQueryObject
-    {
-        void Merge<T>(
-            SqlConnection connection,
-            MergeRequest<T> request);
-    }
-
+    /// <summary>
+    /// MergeQueryObject
+    /// An abstraction for the SQL Merge statement with many options and efficiencies.
+    /// Author: Jason Valdez
+    /// Repository: https://github.com/JasonDV/MergeQueryObject
+    /// </summary>
     public class MergeQueryObject : IMergeQueryObject
     {
         private readonly IBulkLoader _bulkLoader;
