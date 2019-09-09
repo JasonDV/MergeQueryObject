@@ -202,9 +202,9 @@ ON {onClause}
 
             if (request.WhenNotMatchedDeleteBehavior == DeleteBehavior.MarkIsDelete)
             {
-                sql = @"
+                sql = $@"
 WHEN NOT MATCHED BY SOURCE THEN
-    UPDATE SET IsDeleted = 1
+    UPDATE SET {request.WhenNotMatchedDeleteFieldName} = 1
 ";
             }
 
