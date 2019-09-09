@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
-using Dapper;
 using ivaldez.Sql.SqlBulkLoader;
 
 namespace ivaldez.Sql.SqlMergeQueryObject
@@ -19,12 +18,6 @@ namespace ivaldez.Sql.SqlMergeQueryObject
     {
         private readonly IBulkLoader _bulkLoader;
         private readonly ExpressionToSql _expressionToSql;
-
-        private class BuildTempTableCloneResponse
-        {
-            public string TempTableName { get; set; }
-            public IReadOnlyDictionary<string, string> BulkLoaderRenameRules { get; set; }
-        }
 
         public MergeQueryObject(
             IBulkLoader bulkLoader,
@@ -46,7 +39,7 @@ namespace ivaldez.Sql.SqlMergeQueryObject
                 var response = BuildTempTableClone(
                     connection,
                     request,
-                    (tableName) =>
+                    tableName =>
                     {
                         tempTableName = tableName;
                         tableCreated = true;
@@ -55,7 +48,7 @@ namespace ivaldez.Sql.SqlMergeQueryObject
                 var sql = GetMergeSql(response.TempTableName, request, response.BulkLoaderRenameRules);
 
                 request.InfoLogger($"SQL: {sql}");
-                connection.Execute(sql, null, null, request.SqlCommandTimeout, null);
+                connection.Execute(sql, request.SqlCommandTimeout);
             }
             catch (Exception ex)
             {
@@ -68,7 +61,7 @@ namespace ivaldez.Sql.SqlMergeQueryObject
                 {
                     var dropSql = $@"DROP TABLE {tempTableName};";
                     request.InfoLogger(dropSql);
-                    connection.Execute(dropSql, null, null, 0, null);
+                    connection.Execute(dropSql, request.SqlCommandTimeout);
                 }
             }
         }
@@ -106,7 +99,7 @@ namespace ivaldez.Sql.SqlMergeQueryObject
                 .Except(request.GetColumnsToExcludeExpressionOnInsert())
                 .ToArray();
 
-            var targetPropertyNames = ApplyRenameRules<T>(bulkLoaderRenameRules, propertyNames);
+            var targetPropertyNames = ApplyRenameRules(bulkLoaderRenameRules, propertyNames);
 
             var tempSql = $@"
 SELECT TOP(0) {string.Join(",", targetPropertyNames)}
@@ -115,7 +108,7 @@ FROM {request.TargetTableName} NOLOCK
 ";
 
             request.InfoLogger($"SQL: {tempSql}");
-            connection.Execute(tempSql, null, null, 0, null);
+            connection.Execute(tempSql, request.SqlCommandTimeout);
 
             tableCreated(tempTableName);
 
@@ -139,7 +132,7 @@ CREATE CLUSTERED INDEX [IdxPrimaryKey] ON {tempTableName}
 )
 ";
             request.InfoLogger($"SQL: {tempSqlIndex}");
-            connection.Execute(tempSqlIndex, null, null, 0, null);
+            connection.Execute(tempSqlIndex, request.SqlCommandTimeout);
 
             return new BuildTempTableCloneResponse
             {
@@ -198,7 +191,7 @@ ON {onClause}
                 return "--NO delete requested" + Environment.NewLine;
             }
 
-            string sql = "";
+            var sql = "";
 
             if (request.WhenNotMatchedDeleteBehavior == DeleteBehavior.MarkIsDelete)
             {
@@ -239,7 +232,7 @@ WHEN NOT MATCHED BY SOURCE THEN
                 return "--NO properties to update" + Environment.NewLine;
             }
 
-            targetPropertyNames = ApplyRenameRules<T>(bulkLoaderRenameRules, targetPropertyNames);
+            targetPropertyNames = ApplyRenameRules(bulkLoaderRenameRules, targetPropertyNames);
 
             var list = new List<string>();
             foreach (var propertyName in targetPropertyNames)
@@ -275,7 +268,7 @@ WHEN MATCHED THEN
                 return "--NO properties to insert" + Environment.NewLine;
             }
 
-            targetPropertyNames = ApplyRenameRules<T>(bulkLoaderRenameRules, targetPropertyNames);
+            targetPropertyNames = ApplyRenameRules(bulkLoaderRenameRules, targetPropertyNames);
 
             if (request.KeepPrimaryKeyInInsertStatement == false)
             {
@@ -304,7 +297,8 @@ WHEN NOT MATCHED BY TARGET THEN
 ";
         }
 
-        private static string[] ApplyRenameRules<T>(IReadOnlyDictionary<string, string> bulkLoaderRenameRules, string[] targetPropertyNames)
+        private static string[] ApplyRenameRules(IReadOnlyDictionary<string, string> bulkLoaderRenameRules,
+            string[] targetPropertyNames)
         {
             var retObj = new string[targetPropertyNames.Length];
 
@@ -325,7 +319,8 @@ WHEN NOT MATCHED BY TARGET THEN
             return retObj.ToArray();
         }
 
-        private static string[] GetRenamedPrimaryKey<T>(MergeRequest<T> request, IReadOnlyDictionary<string, string> bulkLoaderRenameRules)
+        private static string[] GetRenamedPrimaryKey<T>(MergeRequest<T> request,
+            IReadOnlyDictionary<string, string> bulkLoaderRenameRules)
         {
             var primaryKey = request.GetPrimaryKey();
 
@@ -340,6 +335,12 @@ WHEN NOT MATCHED BY TARGET THEN
             }
 
             return primaryKey;
+        }
+
+        private class BuildTempTableCloneResponse
+        {
+            public string TempTableName { get; set; }
+            public IReadOnlyDictionary<string, string> BulkLoaderRenameRules { get; set; }
         }
     }
 }
