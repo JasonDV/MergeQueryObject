@@ -15,6 +15,7 @@ namespace ivaldez.Sql.SqlMergeQueryObject
             ColumnsToExcludeExpressionOnUpdate = t => new object[] { };
             TargetDataSetFilter = null;
             SqlCommandTimeout = 0;
+            WhenNotMatchedDeleteFieldName = "IsDeleted";
 
             TargetPropertyNames = typeof(T)
                 .GetProperties()
@@ -63,6 +64,11 @@ namespace ivaldez.Sql.SqlMergeQueryObject
         ///     Defines the behavior when a record is not matched in the target table.
         /// </summary>
         public DeleteBehavior WhenNotMatchedDeleteBehavior { get; set; }
+
+        /// <summary>
+        ///     The field name to use for soft deletes
+        /// </summary>
+        public string WhenNotMatchedDeleteFieldName { get; set; }
 
         /// <summary>
         /// Only update records that match.
