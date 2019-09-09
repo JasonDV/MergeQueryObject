@@ -6,6 +6,8 @@ The SQL Merge statement updates, inserts, and/or deletes records. It is intended
 
 This implementation tries to give the developer access to a useful subset of Merge features, with the aim of making efficient data merges into large tables. 
 
+Nuget: https://www.nuget.org/packages/ivaldez.Sql.SqlMergeQueryObject/
+
 ## Targets
 
 * .NETFramework 4.6.1
