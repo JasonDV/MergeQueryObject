@@ -41,7 +41,7 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
                 PrimaryKeyExpression = t => new object[] {t.Pk},
                 KeepPrimaryKeyInInsertStatement = false,
                 WhenNotMatchedDeleteBehavior = DeleteBehavior.Delete,
-                OnMergeUpdateOnly = false,
+                OnMergeUpdateActive = false,
                 BulkLoaderOptions =
                     t => t.With(c => c.TextValueExtra, "TextValue")
                         .With(c => c.IntValueExtra, "IntValue")

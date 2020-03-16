@@ -160,5 +160,29 @@ VALUES
 
             _testingDatabaseService.Execute(sql);
         }
+
+        public void Insert(SampleSurrogateKey sampleCompositeKeyDto)
+        {
+            var sql = $@"
+SET IDENTITY_INSERT [dbo].[Sample] ON;
+INSERT INTO [dbo].[Sample]
+(
+    [Pk]
+    ,[TextValue]
+    ,[IntValue]
+    ,[DecimalValue]
+)
+VALUES
+(
+    {sampleCompositeKeyDto.Pk}
+    ,'{sampleCompositeKeyDto.TextValue}'
+    ,{sampleCompositeKeyDto.IntValue}
+    ,{sampleCompositeKeyDto.DecimalValue}
+);
+SET IDENTITY_INSERT [dbo].[Sample] OFF;
+";
+
+            _testingDatabaseService.Execute(sql);
+        }
     }
 }

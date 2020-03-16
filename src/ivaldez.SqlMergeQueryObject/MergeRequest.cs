@@ -17,6 +17,9 @@ namespace ivaldez.Sql.SqlMergeQueryObject
             SqlCommandTimeout = 0;
             WhenNotMatchedDeleteFieldName = "IsDeleted";
 
+            OnMergeInsertActive = true;
+            OnMergeUpdateActive = true;
+
             TargetPropertyNames = typeof(T)
                 .GetProperties()
                 .Select(x => x.Name)
@@ -71,10 +74,14 @@ namespace ivaldez.Sql.SqlMergeQueryObject
         public string WhenNotMatchedDeleteFieldName { get; set; }
 
         /// <summary>
-        /// Only update records that match.
-        /// When set, the merge statement will only consist of the ON MATCH syntax.
+        /// Activates and Deactivates the ON MATCH part of the Merge
         /// </summary>
-        public bool OnMergeUpdateOnly { get; set; }
+        public bool OnMergeUpdateActive { get; set; }
+
+        /// <summary>
+        /// Activates and Deactivates the NOT MATCHED part of the Merge
+        /// </summary>
+        public bool OnMergeInsertActive { get; set; }
 
         /// <summary>
         ///     An array representing the primary key of the target table
@@ -110,7 +117,7 @@ namespace ivaldez.Sql.SqlMergeQueryObject
         public Action<string> ErrorLogger { get; set; } = message => { };
 
         public Action<BulkLoaderContext<T>> BulkLoaderOptions { get; set; } = context => { };
-
+       
         /// <summary>
         ///     Get an array representing the primary key fields.
         /// </summary>

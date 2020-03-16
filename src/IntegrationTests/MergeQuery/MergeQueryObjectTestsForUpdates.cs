@@ -69,7 +69,7 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
                 PrimaryKeyExpression = t => new object[] {t.Pk1, t.Pk2},
                 KeepPrimaryKeyInInsertStatement = true,
                 WhenNotMatchedDeleteBehavior = DeleteBehavior.None,
-                OnMergeUpdateOnly = true
+                OnMergeUpdateActive = true
             };
 
             helper.DataService.Merge(request2);
@@ -260,7 +260,7 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
                 PrimaryKeyExpression = t => new object[] {t.Pk1, t.Pk2},
                 KeepPrimaryKeyInInsertStatement = true,
                 WhenNotMatchedDeleteBehavior = DeleteBehavior.None,
-                OnMergeUpdateOnly = true
+                OnMergeUpdateActive = true
             };
 
             helper.DataService.Merge(request);

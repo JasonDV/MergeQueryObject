@@ -85,6 +85,7 @@
     <Compile Include="Data\TestingDataService.cs" />
     <Compile Include="ExpressionTo\ExpressionToSqlTests.cs" />
     <Compile Include="MergeQuery\MergeQueryObjectTestHelper.cs" />
+    <Compile Include="MergeQuery\MergeQueryObjectTestsForInsertOnly.cs" />
     <Compile Include="MergeQuery\MergeQueryObjectTestsForLogging.cs" />
     <Compile Include="MergeQuery\MergeQueryObjectTestsForRequestOptions.cs" />
     <Compile Include="Data\SampleCompositeKeyDto.cs" />

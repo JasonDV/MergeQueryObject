@@ -215,6 +215,11 @@ WHEN NOT MATCHED BY SOURCE THEN
         private string GetUpdateBlock<T>(MergeRequest<T> request,
             IReadOnlyDictionary<string, string> bulkLoaderRenameRules)
         {
+            if (request.OnMergeUpdateActive == false)
+            {
+                return "--NO update block due to update command being deactivated" + Environment.NewLine;
+            }
+
             var retObj = new StringBuilder();
 
             retObj.AppendLine(@"UPDATE");
@@ -250,9 +255,9 @@ WHEN MATCHED THEN
         private string GetInsertBlock<T>(MergeRequest<T> request,
             IReadOnlyDictionary<string, string> bulkLoaderRenameRules)
         {
-            if (request.OnMergeUpdateOnly)
+            if (request.OnMergeInsertActive == false)
             {
-                return "--NO insert block due to update only command" + Environment.NewLine;
+                return "--NO insert block due to insert command being deactivated" + Environment.NewLine;
             }
 
             var retObj = new StringBuilder();
