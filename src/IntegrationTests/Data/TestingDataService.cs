@@ -15,7 +15,7 @@ namespace ivaldez.Sql.IntegrationTests.Data
             _testingDatabaseService = testingDatabaseService;
             _mergeQueryObject = mergeQueryObject;
         }
-
+        
         public IEnumerable<SampleSurrogateKey> GetAllSampleSurrogateKey()
         {
             var sql = @"SELECT * FROM dbo.Sample";

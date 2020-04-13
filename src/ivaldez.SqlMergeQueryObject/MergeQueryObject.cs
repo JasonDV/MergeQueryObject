@@ -34,7 +34,7 @@ namespace ivaldez.Sql.SqlMergeQueryObject
             var tempTableName = "";
 
             try
-            {
+            { 
                 var response = BuildTempTableClone(
                     connection,
                     request,
@@ -47,7 +47,8 @@ namespace ivaldez.Sql.SqlMergeQueryObject
                 var sql = GetMergeSql(response.TempTableName, request, response.BulkLoaderRenameRules);
 
                 request.InfoLogger($"SQL: {sql}");
-                connection.Execute(sql, request.SqlCommandTimeout);
+
+                request.ExecuteSql(connection, sql, request);
             }
             catch (Exception ex)
             {

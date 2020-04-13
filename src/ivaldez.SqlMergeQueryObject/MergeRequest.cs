@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Linq.Expressions;
 using ivaldez.Sql.SqlBulkLoader;
@@ -24,7 +25,17 @@ namespace ivaldez.Sql.SqlMergeQueryObject
                 .GetProperties()
                 .Select(x => x.Name)
                 .ToArray();
+
+            ExecuteSql = (connection, sql, request) =>
+            {
+                connection.Execute(sql, request.SqlCommandTimeout);
+            };
         }
+        
+        /// <summary>
+        /// ExecuteSql is an delegate action that is predefined with a basic SQL connection
+        /// </summary>
+        public Action<SqlConnection, string,  MergeRequest<T>> ExecuteSql { get; set; }
 
         /// <summary>
         ///     List of all public properties of the generic type
@@ -35,7 +46,7 @@ namespace ivaldez.Sql.SqlMergeQueryObject
         ///     The command timeout for the Merge statement at the server.
         ///     default value is 0
         /// </summary>
-        public int SqlCommandTimeout { get; }
+        public int SqlCommandTimeout { get; set; }
 
         /// <summary>
         ///     The data set to merge.
