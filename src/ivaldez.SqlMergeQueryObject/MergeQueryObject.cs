@@ -99,8 +99,8 @@ namespace ivaldez.Sql.SqlMergeQueryObject
                 .Except(request.GetColumnsToExcludeExpressionOnInsert())
                 .ToArray();
 
-            var targetPropertyNames = ApplyRenameRules(bulkLoaderRenameRules, propertyNames);
-
+            var targetPropertyNames = AddBrackets(ApplyRenameRules(bulkLoaderRenameRules, propertyNames));
+            
             var tempSql = $@"
 SELECT TOP(0) {string.Join(",", targetPropertyNames)}
 INTO {tempTableName}
@@ -120,9 +120,9 @@ FROM {request.TargetTableName} NOLOCK
 
             request.InfoLogger("Bulk loading data to temp table");
 
-            var primaryKey = GetRenamedPrimaryKey(request, bulkLoaderRenameRules);
+            var primaryKey = AddBrackets(GetRenamedPrimaryKey(request, bulkLoaderRenameRules));
             var primaryKeyList = primaryKey
-                .Select(t => $"[{t}] ASC");
+                .Select(t => $"{t} ASC");
             var primaryKeyFieldList = string.Join(",", primaryKeyList);
 
             var tempSqlIndex = $@"
@@ -147,7 +147,7 @@ CREATE CLUSTERED INDEX [IdxPrimaryKey] ON {tempTableName}
         {
             var primaryKey = GetRenamedPrimaryKey(request, bulkLoaderRenameRules);
             var joinList = primaryKey
-                .Select(t => $"T.{t} = S.{t}");
+                .Select(t => $"T.[{t}] = S.[{t}]");
             var onClause = string.Join(" AND " + Environment.NewLine, joinList);
 
             var identityInsertOn = request.KeepIdentityColumnValueOnInsert
@@ -346,6 +346,14 @@ WHEN NOT MATCHED BY TARGET THEN
         {
             public string TempTableName { get; set; }
             public IReadOnlyDictionary<string, string> BulkLoaderRenameRules { get; set; }
+        }
+
+        private IEnumerable<string> AddBrackets(IEnumerable<string> applyRenameRules)
+        {
+            foreach (var applyRenameRule in applyRenameRules)
+            {
+                yield return "[" + applyRenameRule + "]";
+            }
         }
     }
 }

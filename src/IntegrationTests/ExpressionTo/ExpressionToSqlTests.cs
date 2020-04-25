@@ -20,19 +20,19 @@ namespace ivaldez.Sql.IntegrationTests.ExpressionTo
             var stuff = new SqlMergeQueryObject.ExpressionToSql();
 
             var sql1 = stuff.GenerateWhereClause<ExpressionToSqlTestsDto>(w => w.IntValue > 10 && w.TextValue == "Jason");
-            sql1.Should().Be("WHERE ((IntValue > 10) AND (TextValue = 'Jason'))");
+            sql1.Should().Be("WHERE (([IntValue] > 10) AND ([TextValue] = 'Jason'))");
 
             var sql2b = stuff.GenerateWhereClause<ExpressionToSqlTestsDto>(w =>
                 w.IntValue > 10 || w.TextValue == "Jason" && w.DecimalValue == 100m);
-            sql2b.Should().Be("WHERE ((IntValue > 10) OR ((TextValue = 'Jason') AND (DecimalValue = 100)))");
+            sql2b.Should().Be("WHERE (([IntValue] > 10) OR (([TextValue] = 'Jason') AND ([DecimalValue] = 100)))");
 
             var sql2a = stuff.GenerateWhereClause<ExpressionToSqlTestsDto>(w =>
                 (w.IntValue > 10 || w.TextValue == "Jason") && w.DecimalValue == 100m);
-            sql2a.Should().Be("WHERE (((IntValue > 10) OR (TextValue = 'Jason')) AND (DecimalValue = 100))");
+            sql2a.Should().Be("WHERE ((([IntValue] > 10) OR ([TextValue] = 'Jason')) AND ([DecimalValue] = 100))");
 
             var sql2 = stuff.GenerateWhereClause<ExpressionToSqlTestsDto>(w =>
                 w.IntValue > 10 && (w.TextValue == "Jason" || w.DecimalValue == 100m));
-            sql2.Should().Be("WHERE ((IntValue > 10) AND ((TextValue = 'Jason') OR (DecimalValue = 100)))");
+            sql2.Should().Be("WHERE (([IntValue] > 10) AND (([TextValue] = 'Jason') OR ([DecimalValue] = 100)))");
         }
 
         [Fact]
@@ -41,31 +41,31 @@ namespace ivaldez.Sql.IntegrationTests.ExpressionTo
             var stuff = new SqlMergeQueryObject.ExpressionToSql();
 
             var sql1aa = stuff.GenerateWhereClause<ExpressionToSqlTestsDto>(w => w.IntValue >= 10);
-            sql1aa.Should().Be("WHERE (IntValue >= 10)");
+            sql1aa.Should().Be("WHERE ([IntValue] >= 10)");
 
             var sql1bb = stuff.GenerateWhereClause<ExpressionToSqlTestsDto>(w => w.IntValue <= 10);
-            sql1bb.Should().Be("WHERE (IntValue <= 10)");
+            sql1bb.Should().Be("WHERE ([IntValue] <= 10)");
 
             var sql1 = stuff.GenerateWhereClause<ExpressionToSqlTestsDto>(w => w.IntValue > 10);
-            sql1.Should().Be("WHERE (IntValue > 10)");
+            sql1.Should().Be("WHERE ([IntValue] > 10)");
 
             var sql1a = stuff.GenerateWhereClause<ExpressionToSqlTestsDto>(w => w.IntValue < 10);
-            sql1a.Should().Be("WHERE (IntValue < 10)");
+            sql1a.Should().Be("WHERE ([IntValue] < 10)");
 
             var sql2 = stuff.GenerateWhereClause<ExpressionToSqlTestsDto>(w => 10 > w.IntValue);
-            sql2.Should().Be("WHERE (10 > IntValue)");
+            sql2.Should().Be("WHERE (10 > [IntValue])");
 
             var sql3 = stuff.GenerateWhereClause<ExpressionToSqlTestsDto>(w => w.TextValue == "10");
-            sql3.Should().Be("WHERE (TextValue = '10')");
+            sql3.Should().Be("WHERE ([TextValue] = '10')");
 
             var sql4 = stuff.GenerateWhereClause<ExpressionToSqlTestsDto>(w => "10" == w.TextValue);
-            sql4.Should().Be("WHERE ('10' = TextValue)");
+            sql4.Should().Be("WHERE ('10' = [TextValue])");
 
             var sql5 = stuff.GenerateWhereClause<ExpressionToSqlTestsDto>(w => w.TextValue != "10");
-            sql5.Should().Be("WHERE (TextValue <> '10')");
+            sql5.Should().Be("WHERE ([TextValue] <> '10')");
 
             var sql6 = stuff.GenerateWhereClause<ExpressionToSqlTestsDto>(w => "10" != w.TextValue);
-            sql6.Should().Be("WHERE ('10' <> TextValue)");
+            sql6.Should().Be("WHERE ('10' <> [TextValue])");
         }
 
         [Fact]
@@ -75,15 +75,15 @@ namespace ivaldez.Sql.IntegrationTests.ExpressionTo
 
             var abc = 10;
             var sql1 = stuff.GenerateWhereClause<ExpressionToSqlTestsDto>(w => w.IntValue > abc);
-            sql1.Should().Be("WHERE (IntValue > 10)");
+            sql1.Should().Be("WHERE ([IntValue] > 10)");
 
             var sql1a = stuff.GenerateWhereClause<ExpressionToSqlTestsDto>(w => abc < w.IntValue);
-            sql1a.Should().Be("WHERE (10 < IntValue)");
+            sql1a.Should().Be("WHERE (10 < [IntValue])");
 
             var eee = 10;
             var abc2 = eee;
             var sql2 = stuff.GenerateWhereClause<ExpressionToSqlTestsDto>(w => w.IntValue > abc2);
-            sql2.Should().Be("WHERE (IntValue > 10)");
+            sql2.Should().Be("WHERE ([IntValue] > 10)");
         }
 
         [Fact]
@@ -94,10 +94,10 @@ namespace ivaldez.Sql.IntegrationTests.ExpressionTo
             var start = new DateTime(2019, 7, 1);
             var end = new DateTime(2019, 7, 2);
             var sql1 = stuff.GenerateWhereClause<ExpressionToSqlTestsDto>(w => w.TimeStamp >= start && w.TimeStamp <= end);
-            sql1.Should().Be("WHERE ((TimeStamp >= '2019-07-01') AND (TimeStamp <= '2019-07-02'))");
+            sql1.Should().Be("WHERE (([TimeStamp] >= '2019-07-01') AND ([TimeStamp] <= '2019-07-02'))");
 
             var sql2 = stuff.GenerateWhereClause<ExpressionToSqlTestsDto>(w => w.TimeStamp > start || w.TimeStamp < end);
-            sql2.Should().Be("WHERE ((TimeStamp > '2019-07-01') OR (TimeStamp < '2019-07-02'))");
+            sql2.Should().Be("WHERE (([TimeStamp] > '2019-07-01') OR ([TimeStamp] < '2019-07-02'))");
         }
     }
 }
