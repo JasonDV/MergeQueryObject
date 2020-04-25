@@ -23,60 +23,15 @@ namespace ivaldez.Sql.IntegrationTests.Data
             return _testingDatabaseService.Query<SampleSurrogateKey>(sql);
         }
 
-        public IEnumerable<SampleCompositeKeyDto> GetAllSampleCompositeKeyDto()
+        public IEnumerable<T> GetAllSampleCompositeKeyDto<T>()
         {
             var sql = @"SELECT * FROM dbo.Sample";
 
-            return _testingDatabaseService.Query<SampleCompositeKeyDto>(sql);
-        }
-        
-        public void Merge(
-            MergeRequest<SampleSurrogateKey> request)
-        {
-            _testingDatabaseService.WithConnection(conn =>
-            {
-                _mergeQueryObject.Merge(conn, request);
-            });
+            return _testingDatabaseService.Query<T>(sql);
         }
 
-        public void Merge(
-            MergeRequest<SampleSurrogateKeyWithDerivedColumns> request)
-        {
-            _testingDatabaseService.WithConnection(conn =>
-            {
-                _mergeQueryObject.Merge(conn, request);
-            });
-        }
-
-        public void Merge(
-            MergeRequest<SampleCompositeKeyPartialUpdateDto> request)
-        {
-            _testingDatabaseService.WithConnection(conn =>
-            {
-                _mergeQueryObject.Merge(conn, request);
-            });
-        }
-
-        public void Merge(
-            MergeRequest<SampleSurrogateKeyDifferentNamePrimaryKeyDto> request)
-        {
-            _testingDatabaseService.WithConnection(conn =>
-            {
-                _mergeQueryObject.Merge(conn, request);
-            });
-        }
-
-        public void Merge(
-            MergeRequest<SampleSurrogateKeyDifferentNamesDto> request)
-        {
-            _testingDatabaseService.WithConnection(conn =>
-            {
-                _mergeQueryObject.Merge(conn, request);
-            });
-        }
-
-        public void Merge(
-            MergeRequest<SampleCompositeKeyDto> request)
+        public void Merge<T>(
+            MergeRequest<T> request)
         {
             _testingDatabaseService.WithConnection(conn =>
             {
@@ -112,6 +67,24 @@ CREATE TABLE [dbo].[Sample](
  CONSTRAINT [PK_Sample] PRIMARY KEY CLUSTERED 
 (
 	[Pk1] ASC,
+	[Pk2] ASC
+))
+";
+
+            _testingDatabaseService.Execute(sql);
+        }
+
+        public void CreateCompositeKeyTableWithSqlKeyWords()
+        {
+            var sql = @"
+CREATE TABLE [dbo].[Sample](
+	[Exec] [int] NOT NULL,
+	[Pk2] [nvarchar](10) NOT NULL,
+	[Drop] [datetime] NOT NULL,
+    [From] [nvarchar](200) NULL
+ CONSTRAINT [PK_Sample] PRIMARY KEY CLUSTERED 
+(
+	[Exec] ASC,
 	[Pk2] ASC
 ))
 ";
