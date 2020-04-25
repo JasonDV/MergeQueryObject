@@ -15,7 +15,7 @@ namespace ivaldez.Sql.IntegrationTests.Data
             _testingDatabaseService = testingDatabaseService;
             _mergeQueryObject = mergeQueryObject;
         }
-
+        
         public IEnumerable<SampleSurrogateKey> GetAllSampleSurrogateKey()
         {
             var sql = @"SELECT * FROM dbo.Sample";
@@ -23,60 +23,15 @@ namespace ivaldez.Sql.IntegrationTests.Data
             return _testingDatabaseService.Query<SampleSurrogateKey>(sql);
         }
 
-        public IEnumerable<SampleCompositeKeyDto> GetAllSampleCompositeKeyDto()
+        public IEnumerable<T> GetAllSampleCompositeKeyDto<T>()
         {
             var sql = @"SELECT * FROM dbo.Sample";
 
-            return _testingDatabaseService.Query<SampleCompositeKeyDto>(sql);
-        }
-        
-        public void Merge(
-            MergeRequest<SampleSurrogateKey> request)
-        {
-            _testingDatabaseService.WithConnection(conn =>
-            {
-                _mergeQueryObject.Merge(conn, request);
-            });
+            return _testingDatabaseService.Query<T>(sql);
         }
 
-        public void Merge(
-            MergeRequest<SampleSurrogateKeyWithDerivedColumns> request)
-        {
-            _testingDatabaseService.WithConnection(conn =>
-            {
-                _mergeQueryObject.Merge(conn, request);
-            });
-        }
-
-        public void Merge(
-            MergeRequest<SampleCompositeKeyPartialUpdateDto> request)
-        {
-            _testingDatabaseService.WithConnection(conn =>
-            {
-                _mergeQueryObject.Merge(conn, request);
-            });
-        }
-
-        public void Merge(
-            MergeRequest<SampleSurrogateKeyDifferentNamePrimaryKeyDto> request)
-        {
-            _testingDatabaseService.WithConnection(conn =>
-            {
-                _mergeQueryObject.Merge(conn, request);
-            });
-        }
-
-        public void Merge(
-            MergeRequest<SampleSurrogateKeyDifferentNamesDto> request)
-        {
-            _testingDatabaseService.WithConnection(conn =>
-            {
-                _mergeQueryObject.Merge(conn, request);
-            });
-        }
-
-        public void Merge(
-            MergeRequest<SampleCompositeKeyDto> request)
+        public void Merge<T>(
+            MergeRequest<T> request)
         {
             _testingDatabaseService.WithConnection(conn =>
             {
@@ -108,9 +63,28 @@ CREATE TABLE [dbo].[Sample](
 	[IntValue] [int] NOT NULL,
 	[DecimalValue] [decimal](18, 8) NOT NULL,
     [IsDeleted] [bit] DEFAULT(0),
+    [IsRemovable] [bit] DEFAULT(0)
  CONSTRAINT [PK_Sample] PRIMARY KEY CLUSTERED 
 (
 	[Pk1] ASC,
+	[Pk2] ASC
+))
+";
+
+            _testingDatabaseService.Execute(sql);
+        }
+
+        public void CreateCompositeKeyTableWithSqlKeyWords()
+        {
+            var sql = @"
+CREATE TABLE [dbo].[Sample](
+	[Exec] [int] NOT NULL,
+	[Pk2] [nvarchar](10) NOT NULL,
+	[Drop] [datetime] NOT NULL,
+    [From] [nvarchar](200) NULL
+ CONSTRAINT [PK_Sample] PRIMARY KEY CLUSTERED 
+(
+	[Exec] ASC,
 	[Pk2] ASC
 ))
 ";
@@ -155,6 +129,30 @@ VALUES
     ,{sampleCompositeKeyDto.DecimalValue}
     ,{(sampleCompositeKeyDto.IsDeleted ? "1":"0")}
 )
+";
+
+            _testingDatabaseService.Execute(sql);
+        }
+
+        public void Insert(SampleSurrogateKey sampleCompositeKeyDto)
+        {
+            var sql = $@"
+SET IDENTITY_INSERT [dbo].[Sample] ON;
+INSERT INTO [dbo].[Sample]
+(
+    [Pk]
+    ,[TextValue]
+    ,[IntValue]
+    ,[DecimalValue]
+)
+VALUES
+(
+    {sampleCompositeKeyDto.Pk}
+    ,'{sampleCompositeKeyDto.TextValue}'
+    ,{sampleCompositeKeyDto.IntValue}
+    ,{sampleCompositeKeyDto.DecimalValue}
+);
+SET IDENTITY_INSERT [dbo].[Sample] OFF;
 ";
 
             _testingDatabaseService.Execute(sql);

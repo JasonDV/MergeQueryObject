@@ -6,7 +6,7 @@
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <Copyright>Copyright 2019 Jason Valdez</Copyright>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/JasonDV/MergeQueryObject</PackageProjectUrl>
+    <PackageProjectUrl></PackageProjectUrl>
     <PackageReleaseNotes></PackageReleaseNotes>
     <Description>An abstraction for the SQL Merge statement with many options and efficiencies.</Description>
     <NeutralLanguage>en</NeutralLanguage>
@@ -25,7 +25,6 @@
 
   <ItemGroup>
     <PackageReference Include="System.Data.SqlClient" Version="4.5.1" />
-    <PackageReference Include="Dapper" Version="2.0.4" />
     <PackageReference Include="ivaldez.Sql.SqlBulkLoader" Version="1.0.0.7" />
   </ItemGroup>
 

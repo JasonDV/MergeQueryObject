@@ -8,6 +8,7 @@
         public int? IntValue { get; set; }
         public decimal? DecimalValue { get; set; }
         public bool IsDeleted { get; set; }
+        public bool IsRemovable { get; set; }
     }
 
     public class SampleCompositeKeyPartialUpdateDto

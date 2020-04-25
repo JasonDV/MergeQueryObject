@@ -71,12 +71,12 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
                 PrimaryKeyExpression = t => new object[] {t.Pk1, t.Pk2},
                 KeepPrimaryKeyInInsertStatement = true,
                 WhenNotMatchedDeleteBehavior = DeleteBehavior.Delete,
-                OnMergeUpdateOnly = true
+                OnMergeInsertActive = false
             };
 
             helper.DataService.Merge(request);
 
-            var sampleDtos = helper.DataService.GetAllSampleCompositeKeyDto().ToArray();
+            var sampleDtos = helper.DataService.GetAllSampleCompositeKeyDto<SampleCompositeKeyDto>().ToArray();
 
             sampleDtos.Length.Should().Be(1);
 

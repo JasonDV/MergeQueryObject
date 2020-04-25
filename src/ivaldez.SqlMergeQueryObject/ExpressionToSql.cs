@@ -167,7 +167,7 @@ namespace ivaldez.Sql.SqlMergeQueryObject
             }
             else if (expression is MemberExpression)
             {
-                value = ((MemberExpression) expression).Member.Name;
+                value = "[" + ((MemberExpression) expression).Member.Name + "]";
             }
 
             return value;

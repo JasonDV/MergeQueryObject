@@ -6,6 +6,8 @@ The SQL Merge statement updates, inserts, and/or deletes records. It is intended
 
 This implementation tries to give the developer access to a useful subset of Merge features, with the aim of making efficient data merges into large tables. 
 
+Nuget: https://www.nuget.org/packages/ivaldez.Sql.SqlMergeQueryObject/
+
 ## Targets
 
 * .NETFramework 4.6.1
@@ -88,4 +90,37 @@ var request = new MergeRequest<SampleSurrogateKeyDifferentNamesDto>
 };
 
 mergeQueryObject.Merge(conn, request);
+```
+
+## Soft deletes
+
+Generally, you want to avoid using the Delete feature of the Merge statement against large target tables, because it doesn't preform very well. There really isn't a very good option for handling deletes. The most acceptable one is probably "soft deletes," where records are marked for delete and cleaned up after the merge operation whenever it becomes convenient. 
+
+The basic way this is handled is by adding a IsDeleted flag to the table and using the "WhenNotMatchedDeleteBehavior" option on MergeRequest.
+
+```csharp
+var request = new MergeRequest<SampleSurrogateKeyDifferentNamesDto>
+{
+    DataToMerge = dtos,
+    TargetTableName = "dbo.Sample",
+    PrimaryKeyExpression = t => new object[] {t.Pk},
+    //Mark for Delete behavior enabled
+    WhenNotMatchedDeleteBehavior = DeleteBehavior.MarkIsDelete
+};
+```
+Now that you have records in the Target table that are marked for delete, we need an efficient way to delete those records. For target tables with 10s or 100s of millions of records, an index on a bit field is relatively inefficient. 
+
+Using a filtered index allows for an efficient delete. Basically, by creating a filtered index, you create a lookup table of rows to be deleted. 
+
+```sql
+CREATE NONCLUSTERED INDEX [Idx-IsDeleteFilter] ON [dbo].[Sample]
+(
+	[IsDeleted] ASC
+)
+WHERE ([IsDeleted]=(1)) --this is the magic
+
+--The database query optimizer will understand how to use
+--the filtered index to identify records to delete
+--Note: you should batch these deletes.
+DELETE FROM [dbo].[Sample] WHERE IsDeleted=1
 ```

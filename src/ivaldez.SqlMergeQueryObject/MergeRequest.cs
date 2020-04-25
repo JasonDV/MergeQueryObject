@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Linq.Expressions;
 using ivaldez.Sql.SqlBulkLoader;
@@ -15,12 +16,26 @@ namespace ivaldez.Sql.SqlMergeQueryObject
             ColumnsToExcludeExpressionOnUpdate = t => new object[] { };
             TargetDataSetFilter = null;
             SqlCommandTimeout = 0;
+            WhenNotMatchedDeleteFieldName = "IsDeleted";
+
+            OnMergeInsertActive = true;
+            OnMergeUpdateActive = true;
 
             TargetPropertyNames = typeof(T)
                 .GetProperties()
                 .Select(x => x.Name)
                 .ToArray();
+
+            ExecuteSql = (connection, sql, request) =>
+            {
+                connection.Execute(sql, request.SqlCommandTimeout);
+            };
         }
+        
+        /// <summary>
+        /// ExecuteSql is an delegate action that is predefined with a basic SQL connection
+        /// </summary>
+        public Action<SqlConnection, string,  MergeRequest<T>> ExecuteSql { get; set; }
 
         /// <summary>
         ///     List of all public properties of the generic type
@@ -31,7 +46,7 @@ namespace ivaldez.Sql.SqlMergeQueryObject
         ///     The command timeout for the Merge statement at the server.
         ///     default value is 0
         /// </summary>
-        public int SqlCommandTimeout { get; }
+        public int SqlCommandTimeout { get; set; }
 
         /// <summary>
         ///     The data set to merge.
@@ -65,10 +80,19 @@ namespace ivaldez.Sql.SqlMergeQueryObject
         public DeleteBehavior WhenNotMatchedDeleteBehavior { get; set; }
 
         /// <summary>
-        /// Only update records that match.
-        /// When set, the merge statement will only consist of the ON MATCH syntax.
+        ///     The field name to use for soft deletes
         /// </summary>
-        public bool OnMergeUpdateOnly { get; set; }
+        public string WhenNotMatchedDeleteFieldName { get; set; }
+
+        /// <summary>
+        /// Activates and Deactivates the ON MATCH part of the Merge
+        /// </summary>
+        public bool OnMergeUpdateActive { get; set; }
+
+        /// <summary>
+        /// Activates and Deactivates the NOT MATCHED part of the Merge
+        /// </summary>
+        public bool OnMergeInsertActive { get; set; }
 
         /// <summary>
         ///     An array representing the primary key of the target table
@@ -104,7 +128,7 @@ namespace ivaldez.Sql.SqlMergeQueryObject
         public Action<string> ErrorLogger { get; set; } = message => { };
 
         public Action<BulkLoaderContext<T>> BulkLoaderOptions { get; set; } = context => { };
-
+       
         /// <summary>
         ///     Get an array representing the primary key fields.
         /// </summary>

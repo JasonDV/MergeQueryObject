@@ -119,7 +119,10 @@ Task ("Default")
     .IsDependentOn ("BuildSolution")
     .IsDependentOn ("BuildMergeQueryObject")  
     .IsDependentOn ("BuildIntegrationTests")    
-    .IsDependentOn ("Run-Unit-Tests")
+    .IsDependentOn ("Run-Unit-Tests");
+
+Task ("Package")
+    .IsDependentOn ("Default")
     .IsDependentOn ("BuildPackages");
 
 //////////////////////////////////////////////////////////////////////

@@ -3,28 +3,20 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
-using Dapper;
 using ivaldez.Sql.SqlBulkLoader;
 
 namespace ivaldez.Sql.SqlMergeQueryObject
 {
-    public interface IMergeQueryObject
-    {
-        void Merge<T>(
-            SqlConnection connection,
-            MergeRequest<T> request);
-    }
-
+    /// <summary>
+    /// MergeQueryObject
+    /// An abstraction for the SQL Merge statement with many options and efficiencies.
+    /// Author: Jason Valdez
+    /// Repository: https://github.com/JasonDV/MergeQueryObject
+    /// </summary>
     public class MergeQueryObject : IMergeQueryObject
     {
         private readonly IBulkLoader _bulkLoader;
         private readonly ExpressionToSql _expressionToSql;
-
-        private class BuildTempTableCloneResponse
-        {
-            public string TempTableName { get; set; }
-            public IReadOnlyDictionary<string, string> BulkLoaderRenameRules { get; set; }
-        }
 
         public MergeQueryObject(
             IBulkLoader bulkLoader,
@@ -42,11 +34,11 @@ namespace ivaldez.Sql.SqlMergeQueryObject
             var tempTableName = "";
 
             try
-            {
+            { 
                 var response = BuildTempTableClone(
                     connection,
                     request,
-                    (tableName) =>
+                    tableName =>
                     {
                         tempTableName = tableName;
                         tableCreated = true;
@@ -55,7 +47,8 @@ namespace ivaldez.Sql.SqlMergeQueryObject
                 var sql = GetMergeSql(response.TempTableName, request, response.BulkLoaderRenameRules);
 
                 request.InfoLogger($"SQL: {sql}");
-                connection.Execute(sql, null, null, request.SqlCommandTimeout, null);
+
+                request.ExecuteSql(connection, sql, request);
             }
             catch (Exception ex)
             {
@@ -68,7 +61,7 @@ namespace ivaldez.Sql.SqlMergeQueryObject
                 {
                     var dropSql = $@"DROP TABLE {tempTableName};";
                     request.InfoLogger(dropSql);
-                    connection.Execute(dropSql, null, null, 0, null);
+                    connection.Execute(dropSql, request.SqlCommandTimeout);
                 }
             }
         }
@@ -106,8 +99,8 @@ namespace ivaldez.Sql.SqlMergeQueryObject
                 .Except(request.GetColumnsToExcludeExpressionOnInsert())
                 .ToArray();
 
-            var targetPropertyNames = ApplyRenameRules<T>(bulkLoaderRenameRules, propertyNames);
-
+            var targetPropertyNames = AddBrackets(ApplyRenameRules(bulkLoaderRenameRules, propertyNames));
+            
             var tempSql = $@"
 SELECT TOP(0) {string.Join(",", targetPropertyNames)}
 INTO {tempTableName}
@@ -115,7 +108,7 @@ FROM {request.TargetTableName} NOLOCK
 ";
 
             request.InfoLogger($"SQL: {tempSql}");
-            connection.Execute(tempSql, null, null, 0, null);
+            connection.Execute(tempSql, request.SqlCommandTimeout);
 
             tableCreated(tempTableName);
 
@@ -127,9 +120,9 @@ FROM {request.TargetTableName} NOLOCK
 
             request.InfoLogger("Bulk loading data to temp table");
 
-            var primaryKey = GetRenamedPrimaryKey(request, bulkLoaderRenameRules);
+            var primaryKey = AddBrackets(GetRenamedPrimaryKey(request, bulkLoaderRenameRules));
             var primaryKeyList = primaryKey
-                .Select(t => $"[{t}] ASC");
+                .Select(t => $"{t} ASC");
             var primaryKeyFieldList = string.Join(",", primaryKeyList);
 
             var tempSqlIndex = $@"
@@ -139,7 +132,7 @@ CREATE CLUSTERED INDEX [IdxPrimaryKey] ON {tempTableName}
 )
 ";
             request.InfoLogger($"SQL: {tempSqlIndex}");
-            connection.Execute(tempSqlIndex, null, null, 0, null);
+            connection.Execute(tempSqlIndex, request.SqlCommandTimeout);
 
             return new BuildTempTableCloneResponse
             {
@@ -154,7 +147,7 @@ CREATE CLUSTERED INDEX [IdxPrimaryKey] ON {tempTableName}
         {
             var primaryKey = GetRenamedPrimaryKey(request, bulkLoaderRenameRules);
             var joinList = primaryKey
-                .Select(t => $"T.{t} = S.{t}");
+                .Select(t => $"T.[{t}] = S.[{t}]");
             var onClause = string.Join(" AND " + Environment.NewLine, joinList);
 
             var identityInsertOn = request.KeepIdentityColumnValueOnInsert
@@ -198,13 +191,13 @@ ON {onClause}
                 return "--NO delete requested" + Environment.NewLine;
             }
 
-            string sql = "";
+            var sql = "";
 
             if (request.WhenNotMatchedDeleteBehavior == DeleteBehavior.MarkIsDelete)
             {
-                sql = @"
+                sql = $@"
 WHEN NOT MATCHED BY SOURCE THEN
-    UPDATE SET IsDeleted = 1
+    UPDATE SET {request.WhenNotMatchedDeleteFieldName} = 1
 ";
             }
 
@@ -223,6 +216,11 @@ WHEN NOT MATCHED BY SOURCE THEN
         private string GetUpdateBlock<T>(MergeRequest<T> request,
             IReadOnlyDictionary<string, string> bulkLoaderRenameRules)
         {
+            if (request.OnMergeUpdateActive == false)
+            {
+                return "--NO update block due to update command being deactivated" + Environment.NewLine;
+            }
+
             var retObj = new StringBuilder();
 
             retObj.AppendLine(@"UPDATE");
@@ -239,7 +237,7 @@ WHEN NOT MATCHED BY SOURCE THEN
                 return "--NO properties to update" + Environment.NewLine;
             }
 
-            targetPropertyNames = ApplyRenameRules<T>(bulkLoaderRenameRules, targetPropertyNames);
+            targetPropertyNames = ApplyRenameRules(bulkLoaderRenameRules, targetPropertyNames);
 
             var list = new List<string>();
             foreach (var propertyName in targetPropertyNames)
@@ -258,9 +256,9 @@ WHEN MATCHED THEN
         private string GetInsertBlock<T>(MergeRequest<T> request,
             IReadOnlyDictionary<string, string> bulkLoaderRenameRules)
         {
-            if (request.OnMergeUpdateOnly)
+            if (request.OnMergeInsertActive == false)
             {
-                return "--NO insert block due to update only command" + Environment.NewLine;
+                return "--NO insert block due to insert command being deactivated" + Environment.NewLine;
             }
 
             var retObj = new StringBuilder();
@@ -275,7 +273,7 @@ WHEN MATCHED THEN
                 return "--NO properties to insert" + Environment.NewLine;
             }
 
-            targetPropertyNames = ApplyRenameRules<T>(bulkLoaderRenameRules, targetPropertyNames);
+            targetPropertyNames = ApplyRenameRules(bulkLoaderRenameRules, targetPropertyNames);
 
             if (request.KeepPrimaryKeyInInsertStatement == false)
             {
@@ -304,7 +302,8 @@ WHEN NOT MATCHED BY TARGET THEN
 ";
         }
 
-        private static string[] ApplyRenameRules<T>(IReadOnlyDictionary<string, string> bulkLoaderRenameRules, string[] targetPropertyNames)
+        private static string[] ApplyRenameRules(IReadOnlyDictionary<string, string> bulkLoaderRenameRules,
+            string[] targetPropertyNames)
         {
             var retObj = new string[targetPropertyNames.Length];
 
@@ -325,7 +324,8 @@ WHEN NOT MATCHED BY TARGET THEN
             return retObj.ToArray();
         }
 
-        private static string[] GetRenamedPrimaryKey<T>(MergeRequest<T> request, IReadOnlyDictionary<string, string> bulkLoaderRenameRules)
+        private static string[] GetRenamedPrimaryKey<T>(MergeRequest<T> request,
+            IReadOnlyDictionary<string, string> bulkLoaderRenameRules)
         {
             var primaryKey = request.GetPrimaryKey();
 
@@ -340,6 +340,20 @@ WHEN NOT MATCHED BY TARGET THEN
             }
 
             return primaryKey;
+        }
+
+        private class BuildTempTableCloneResponse
+        {
+            public string TempTableName { get; set; }
+            public IReadOnlyDictionary<string, string> BulkLoaderRenameRules { get; set; }
+        }
+
+        private IEnumerable<string> AddBrackets(IEnumerable<string> applyRenameRules)
+        {
+            foreach (var applyRenameRule in applyRenameRules)
+            {
+                yield return "[" + applyRenameRule + "]";
+            }
         }
     }
 }

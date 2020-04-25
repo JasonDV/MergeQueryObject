@@ -56,7 +56,7 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
 
             helper.DataService.Merge(request);
 
-            var sourceDtos = helper.DataService.GetAllSampleCompositeKeyDto().ToArray();
+            var sourceDtos = helper.DataService.GetAllSampleCompositeKeyDto<SampleCompositeKeyDto>().ToArray();
 
             sourceDtos.Length.Should().Be(2);
 
@@ -121,7 +121,7 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
 
             helper.DataService.Merge(request);
 
-            var sourceDtos = helper.DataService.GetAllSampleCompositeKeyDto().ToArray();
+            var sourceDtos = helper.DataService.GetAllSampleCompositeKeyDto<SampleCompositeKeyDto>().ToArray();
 
             sourceDtos.Length.Should().Be(3);
 
@@ -145,6 +145,66 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
             thirdDto.IntValue.Should().Be(1);
             thirdDto.DecimalValue.Should().Be(1);
             thirdDto.IsDeleted.Should().BeTrue();
+        }
+
+        [Fact]
+        public void ShouldMarkForDeleteWhenCustomFieldName()
+        {
+            var helper = new MergeQueryObjectTestHelper();
+            helper.DataService.DropTable();
+            helper.DataService.CreateCompositeKeyTable();
+
+            helper.DataService.Insert(new SampleCompositeKeyDto
+            {
+                Pk1 = 3,
+                Pk2 = "B",
+                TextValue = "AA",
+                IntValue = 1,
+                DecimalValue = 1
+            });
+
+            var dtos = new[]
+            {
+                new SampleCompositeKeyDto
+                {
+                    Pk1 = 1,
+                    Pk2 = "A",
+                    TextValue = "JJ",
+                    IntValue = 100,
+                    DecimalValue = 100.99m
+                },
+                new SampleCompositeKeyDto
+                {
+                    Pk1 = 2,
+                    Pk2 = "B",
+                    TextValue = "ZZ",
+                    IntValue = 999,
+                    DecimalValue = 123.45m
+                }
+            };
+
+            var request = new MergeRequest<SampleCompositeKeyDto>
+            {
+                DataToMerge = dtos,
+                TargetTableName = "dbo.Sample",
+                UseRealTempTable = false,
+                PrimaryKeyExpression = t => new object[] { t.Pk1, t.Pk2 },
+                KeepPrimaryKeyInInsertStatement = true,
+                WhenNotMatchedDeleteBehavior = DeleteBehavior.MarkIsDelete,
+                WhenNotMatchedDeleteFieldName = "IsRemovable"
+            };
+
+            helper.DataService.Merge(request);
+
+            var sourceDtos = helper.DataService
+                .GetAllSampleCompositeKeyDto<SampleCompositeKeyDto>()
+                .ToArray();
+
+            sourceDtos.Length.Should().Be(3);
+
+            var firstDto = sourceDtos.First(x => x.Pk1 == 3);
+            firstDto.IsDeleted.Should().BeFalse();
+            firstDto.IsRemovable.Should().BeTrue();
         }
     }
 }

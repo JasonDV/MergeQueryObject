@@ -79,12 +79,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\SampleCompositeKeyWithKeyWordsDto.cs" />
     <Compile Include="Data\SampleSurrogateKeyDifferentNamePrimaryKeyDto.cs" />
     <Compile Include="Data\SampleSurrogateKeyDifferentNamesDto.cs" />
     <Compile Include="Data\TestingDatabaseService.cs" />
     <Compile Include="Data\TestingDataService.cs" />
     <Compile Include="ExpressionTo\ExpressionToSqlTests.cs" />
+    <Compile Include="MergeQuery\Issues\MergeQueryObjectTestsForIssue10.cs" />
     <Compile Include="MergeQuery\MergeQueryObjectTestHelper.cs" />
+    <Compile Include="MergeQuery\MergeQueryObjectTestsForCustomConnection.cs" />
+    <Compile Include="MergeQuery\MergeQueryObjectTestsForInsertOnly.cs" />
     <Compile Include="MergeQuery\MergeQueryObjectTestsForLogging.cs" />
     <Compile Include="MergeQuery\MergeQueryObjectTestsForRequestOptions.cs" />
     <Compile Include="Data\SampleCompositeKeyDto.cs" />
@@ -110,6 +114,7 @@
       <Name>ivaldez.Sql.SqlMergeQueryObject</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
