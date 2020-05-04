@@ -82,7 +82,8 @@ var request = new MergeRequest<SampleSurrogateKeyDifferentNamesDto>
     PrimaryKeyExpression = t => new object[] {t.Pk},
     KeepPrimaryKeyInInsertStatement = false,
     WhenNotMatchedDeleteBehavior = DeleteBehavior.Delete,
-    OnMergeUpdateOnly = false,
+    OnMergeUpdateActive = true,
+    OnMergeInsertActive = true,
     BulkLoaderOptions =
         t => t.With(c => c.TextValueExtra, "TextValue")
             .With(c => c.IntValueExtra, "IntValue")
@@ -105,7 +106,7 @@ var request = new MergeRequest<SampleSurrogateKeyDifferentNamesDto>
     TargetTableName = "dbo.Sample",
     PrimaryKeyExpression = t => new object[] {t.Pk},
     //Mark for Delete behavior enabled
-    WhenNotMatchedDeleteBehavior = DeleteBehavior.MarkIsDelete
+    WhenNotMatchedDeleteBehavior = DeleteBehavior.Delete,
 };
 ```
 Now that you have records in the Target table that are marked for delete, we need an efficient way to delete those records. For target tables with 10s or 100s of millions of records, an index on a bit field is relatively inefficient. 

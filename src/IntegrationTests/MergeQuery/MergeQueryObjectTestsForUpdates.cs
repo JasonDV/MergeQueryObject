@@ -39,7 +39,7 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
 
             helper.DataService.Merge(request);
 
-            var sampleDtos = helper.DataService.GetAllSampleCompositeKeyDto<SampleCompositeKeyDto>().ToArray();
+            var sampleDtos = helper.DataService.GetAllSampleDtos<SampleCompositeKeyDto>().ToArray();
 
             var firstDto = sampleDtos.First(x => x.Pk1 == 1);
             firstDto.Pk2.Should().Be("A");
@@ -74,7 +74,7 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
 
             helper.DataService.Merge(request2);
 
-            var sampleDtos2 = helper.DataService.GetAllSampleCompositeKeyDto<SampleCompositeKeyDto>().ToArray();
+            var sampleDtos2 = helper.DataService.GetAllSampleDtos<SampleCompositeKeyDto>().ToArray();
 
             var firstDto2 = sampleDtos2.First(x => x.Pk1 == 1);
             firstDto2.Pk2.Should().Be("A");
@@ -123,7 +123,7 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
 
             helper.DataService.Merge(request);
 
-            var sampleDtos = helper.DataService.GetAllSampleCompositeKeyDto<SampleCompositeKeyDto>().ToArray();
+            var sampleDtos = helper.DataService.GetAllSampleDtos<SampleCompositeKeyDto>().ToArray();
 
             var firstDto = sampleDtos.First(x => x.Pk1 == 1);
             firstDto.Pk2.Should().Be("A");
@@ -172,7 +172,7 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
 
             helper.DataService.Merge(request);
 
-            var firstSetOfInsertedDtos = helper.DataService.GetAllSampleSurrogateKey().ToArray();
+            var firstSetOfInsertedDtos = helper.DataService.GetAllSampleDtos<SampleSurrogateKey>().ToArray();
 
             var firstInsertDto = firstSetOfInsertedDtos.First(x => x.TextValue == "JJ");
             firstInsertDto.IntValue.Should().Be(100);
@@ -194,7 +194,7 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
 
             helper.DataService.Merge(request);
 
-            var secondSetOfUpdateDtos = helper.DataService.GetAllSampleSurrogateKey().ToArray();
+            var secondSetOfUpdateDtos = helper.DataService.GetAllSampleDtos<SampleSurrogateKey>().ToArray();
 
             var firstUpdateDto = secondSetOfUpdateDtos.First(x => x.TextValue == "1");
             firstUpdateDto.IntValue.Should().Be(2);
@@ -265,7 +265,7 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
 
             helper.DataService.Merge(request);
 
-            var sourceDtos = helper.DataService.GetAllSampleCompositeKeyDto<SampleCompositeKeyDto>().ToArray();
+            var sourceDtos = helper.DataService.GetAllSampleDtos<SampleCompositeKeyDto>().ToArray();
 
             var firstDto = sourceDtos.First(x => x.Pk1 == 1);
             firstDto.Pk2.Should().Be("A");

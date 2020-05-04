@@ -42,7 +42,7 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
 
             helper.DataService.Merge(request);
 
-            var sourceDtos = helper.DataService.GetAllSampleSurrogateKey().ToArray();
+            var sourceDtos = helper.DataService.GetAllSampleDtos<SampleSurrogateKey>().ToArray();
 
             var firstDto = sourceDtos.First(x => x.TextValue == "JJ");
             firstDto.IntValue.Should().Be(100);
@@ -91,7 +91,7 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
 
             helper.DataService.Merge(request);
 
-            var sourceDtos = helper.DataService.GetAllSampleSurrogateKey().ToArray();
+            var sourceDtos = helper.DataService.GetAllSampleDtos<SampleSurrogateKey>().ToArray();
 
             var firstDto = sourceDtos.First(x => x.Pk == 100);
             firstDto.TextValue.Should().Be("JJ");
@@ -141,7 +141,7 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
 
             helper.DataService.Merge(request);
 
-            var sourceDtos = helper.DataService.GetAllSampleSurrogateKey().ToArray();
+            var sourceDtos = helper.DataService.GetAllSampleDtos<SampleSurrogateKey>().ToArray();
 
             var firstDto = sourceDtos.First(x => x.TextValue == "JJ");
             firstDto.IntValue.Should().Be(100);
