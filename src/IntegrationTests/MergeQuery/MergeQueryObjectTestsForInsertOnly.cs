@@ -84,7 +84,7 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
 
             helper.DataService.Merge(request);
 
-            var sourceDtos = helper.DataService.GetAllSampleSurrogateKey().ToArray();
+            var sourceDtos = helper.DataService.GetAllSampleDtos<SampleSurrogateKey>().ToArray();
 
             var firstDto = sourceDtos.First(x => x.Pk == 1);
             firstDto.TextValue.Should().Be("JJ");

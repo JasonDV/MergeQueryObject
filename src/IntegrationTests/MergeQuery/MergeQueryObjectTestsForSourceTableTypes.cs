@@ -52,7 +52,7 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
                 infoLogger.Any(x => x.Contains("dbo.MergeObjectTemp")).Should().BeTrue();
             }
 
-            var sourceDtos = helper.DataService.GetAllSampleSurrogateKey().ToArray();
+            var sourceDtos = helper.DataService.GetAllSampleDtos<SampleSurrogateKey>().ToArray();
 
             var firstDto = sourceDtos.First(x => x.TextValue == "JJ");
             firstDto.IntValue.Should().Be(100);

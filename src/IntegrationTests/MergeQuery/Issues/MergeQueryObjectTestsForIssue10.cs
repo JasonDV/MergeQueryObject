@@ -41,7 +41,7 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery.Issues
 
             var sampleDtos = helper
                 .DataService
-                .GetAllSampleCompositeKeyDto<SampleCompositeKeyWithKeyWordsDto>().ToArray();
+                .GetAllSampleDtos<SampleCompositeKeyWithKeyWordsDto>().ToArray();
 
             var firstDto = sampleDtos.First(x => x.Exec == 1);
             firstDto.Pk2.Should().Be("A");
@@ -109,7 +109,7 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery.Issues
 
             var sampleDtos = helper
                 .DataService
-                .GetAllSampleCompositeKeyDto<SampleCompositeKeyWithKeyWordsDto>().ToArray();
+                .GetAllSampleDtos<SampleCompositeKeyWithKeyWordsDto>().ToArray();
 
             sampleDtos.Length.Should().Be(2);
 
