@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,7 +14,7 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
     public class MergeQueryObjectTestsForCustomExceptionHandling
     {
             [Fact]
-        public void ShouldMergeWhenBulkLoadUsesRenamedPrimaryKey()
+        public void ShouldAllowCustomExceptionHandlingInRequestObjectConnection()
         {
             var helper = new MergeQueryObjectTestHelper();
             helper.DataService.DropTable();
@@ -27,13 +28,6 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
                     TextValue = "JJ",
                     IntValue = 100,
                     DecimalValue = 100.99m
-                },
-                new SampleSurrogateKeyDifferentNamePrimaryKeyDto
-                {
-                    PkPrimaryKey = 200,
-                    TextValue = "ZZ",
-                    IntValue = 999,
-                    DecimalValue = 123.45m
                 }
             };
 
@@ -51,20 +45,83 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
                     t => t.With(c => c.PkPrimaryKey, "Pk")
             };
 
-            helper.DataService.Merge(request);
+            int loopCount = 1;
 
-            var sourceDtos = helper.DataService.GetAllSampleDtos<SampleSurrogateKey>().ToArray();
+            //**
 
-            var firstDto = sourceDtos.First(x => x.TextValue == "JJ");
-            firstDto.Pk.Should().Be(100);
-            firstDto.IntValue.Should().Be(100);
-            firstDto.DecimalValue.Should().Be(100.99m);
+            request.ExecuteSql = (connection, sql, req) =>
+            {
+                while (loopCount <= 3)
+                {
+                    try
+                    {
+                        if (loopCount == 1)
+                        {
+                            sql = "SELECT * FROM THROWanERRORtable";
+                        }
 
-            var secondDto = sourceDtos.First(x => x.TextValue == "ZZ");
-            secondDto.Pk.Should().Be(200);
-            secondDto.Pk.Should().BeGreaterThan(0);
-            secondDto.IntValue.Should().Be(999);
-            secondDto.DecimalValue.Should().Be(123.45m);
+                        if (loopCount == 2)
+                        {
+                            throw new Exception("Some non-SQL error");
+                        }
+
+                        connection.Execute(sql, commandTimeout: req.SqlCommandTimeout);
+                    }
+                    catch (Exception ex)
+                    {
+                        request.InfoLogger(ex.Message);
+
+                        if (typeof(SqlException).IsAssignableFrom(ex.GetType()) == false)
+                        {
+                            throw;
+                        }
+                    }
+
+                    loopCount++;
+                }
+            };
+
+            Assert.Throws<Exception>(() =>
+            {
+                helper.DataService.Merge(request);
+            });
+
+            loopCount.Should().Be(2);
+        }
+
+        private static int CustomConnectionWithExceptionHandling(int loopCount, string sql, SqlConnection connection,
+            MergeRequest<SampleSurrogateKeyDifferentNamePrimaryKeyDto> req, MergeRequest<SampleSurrogateKeyDifferentNamePrimaryKeyDto> request)
+        {
+            while (loopCount <= 3)
+            {
+                try
+                {
+                    if (loopCount == 1)
+                    {
+                        sql = "SELECT * FROM THROWanERRORtable";
+                    }
+
+                    if (loopCount == 2)
+                    {
+                        throw new Exception("Some non-SQL error");
+                    }
+
+                    connection.Execute(sql, commandTimeout: req.SqlCommandTimeout);
+                }
+                catch (Exception ex)
+                {
+                    request.InfoLogger(ex.Message);
+
+                    if (typeof(SqlException).IsAssignableFrom(ex.GetType()) == false)
+                    {
+                        throw;
+                    }
+                }
+
+                loopCount++;
+            }
+
+            return loopCount;
         }
     }
 }
