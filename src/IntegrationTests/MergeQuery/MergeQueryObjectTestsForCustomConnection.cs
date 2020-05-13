@@ -51,7 +51,7 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
 
             var sampleDtos = helper.DataService.GetAllSampleDtos<SampleCompositeKeyDto>().ToArray();
 
-            customSqlCommandCalled.Should().Be(1);
+            customSqlCommandCalled.Should().Be(4);
 
             var firstDto = sampleDtos.First(x => x.Pk1 == 1);
             firstDto.Pk2.Should().Be("A");

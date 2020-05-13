@@ -104,6 +104,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MergeQuery\MergeQueryObjectTestsForCustomExceptionHandling.cs" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

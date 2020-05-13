@@ -61,7 +61,7 @@ namespace ivaldez.Sql.SqlMergeQueryObject
                 {
                     var dropSql = $@"DROP TABLE {tempTableName};";
                     request.InfoLogger(dropSql);
-                    connection.Execute(dropSql, request.SqlCommandTimeout);
+                    request.ExecuteSql(connection, dropSql, request);
                 }
             }
         }
@@ -108,7 +108,7 @@ FROM {request.TargetTableName} NOLOCK
 ";
 
             request.InfoLogger($"SQL: {tempSql}");
-            connection.Execute(tempSql, request.SqlCommandTimeout);
+            request.ExecuteSql(connection, tempSql, request);
 
             tableCreated(tempTableName);
 
@@ -132,7 +132,7 @@ CREATE CLUSTERED INDEX [IdxPrimaryKey] ON {tempTableName}
 )
 ";
             request.InfoLogger($"SQL: {tempSqlIndex}");
-            connection.Execute(tempSqlIndex, request.SqlCommandTimeout);
+            request.ExecuteSql(connection, tempSqlIndex, request);
 
             return new BuildTempTableCloneResponse
             {
