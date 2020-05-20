@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq.Expressions;
 using FluentAssertions;
+using ivaldez.Sql.SqlMergeQueryObject;
 using Xunit;
 
 namespace ivaldez.Sql.IntegrationTests.ExpressionTo
@@ -17,7 +19,7 @@ namespace ivaldez.Sql.IntegrationTests.ExpressionTo
         [Fact]
         public void ShouldParseMultipleOperation()
         {
-            var stuff = new SqlMergeQueryObject.ExpressionToSql();
+            var stuff = new ExpressionToSql();
 
             var sql1 = stuff.GenerateWhereClause<ExpressionToSqlTestsDto>(w => w.IntValue > 10 && w.TextValue == "Jason");
             sql1.Should().Be("WHERE (([IntValue] > 10) AND ([TextValue] = 'Jason'))");
@@ -38,7 +40,7 @@ namespace ivaldez.Sql.IntegrationTests.ExpressionTo
         [Fact]
         public void ShouldParseSingleOperation()
         {
-            var stuff = new SqlMergeQueryObject.ExpressionToSql();
+            var stuff = new ExpressionToSql();
 
             var sql1aa = stuff.GenerateWhereClause<ExpressionToSqlTestsDto>(w => w.IntValue >= 10);
             sql1aa.Should().Be("WHERE ([IntValue] >= 10)");
@@ -71,7 +73,7 @@ namespace ivaldez.Sql.IntegrationTests.ExpressionTo
         [Fact]
         public void ShouldParseSingleOperationWithVariable()
         {
-            var stuff = new SqlMergeQueryObject.ExpressionToSql();
+            var stuff = new ExpressionToSql();
 
             var abc = 10;
             var sql1 = stuff.GenerateWhereClause<ExpressionToSqlTestsDto>(w => w.IntValue > abc);
@@ -89,7 +91,7 @@ namespace ivaldez.Sql.IntegrationTests.ExpressionTo
         [Fact]
         public void ShouldParseSqlDate()
         {
-            var stuff = new SqlMergeQueryObject.ExpressionToSql();
+            var stuff = new ExpressionToSql();
 
             var start = new DateTime(2019, 7, 1);
             var end = new DateTime(2019, 7, 2);
@@ -98,6 +100,71 @@ namespace ivaldez.Sql.IntegrationTests.ExpressionTo
 
             var sql2 = stuff.GenerateWhereClause<ExpressionToSqlTestsDto>(w => w.TimeStamp > start || w.TimeStamp < end);
             sql2.Should().Be("WHERE (([TimeStamp] > '2019-07-01') OR ([TimeStamp] < '2019-07-02'))");
+        }
+        
+
+        [Fact(Skip = "This needs more work")]
+        public void ShouldParseSqlInClause()
+        {
+            //var stuff = new ExpressionToSql();
+
+            //var sql1 = stuff.GenerateWhereClause<ExpressionToSqlTestsDto>(w => SqlFunction.In(w.IntValue, new [] { 1, 2, 3, 4}));
+            //sql1.Should().Be("WHERE ([IntValue] IN (1,2,3,4))");
+
+            //var sql2 = stuff.GenerateWhereClause<ExpressionToSqlTestsDto>(w => SqlFunction.In(w.IntValue, new [] { "1", "2", "3", "4"}));
+            //sql2.Should().Be(@"WHERE ([IntValue] IN (""1"",""2"",""3"",""4""))");
+        }
+
+        
+        [Fact(Skip = "This needs more work")]
+        public void ShouldParseSqlInClauseWithConstantsMixed()
+        {
+            //var stuff = new ExpressionToSql();
+
+            //var one = 1;
+            //var two = 2;
+
+            //var sql1 = stuff.GenerateWhereClause<ExpressionToSqlTestsDto>(w => SqlFunction.In(w.IntValue, new [] { one, two, 3, 4}));
+            //sql1.Should().Be("WHERE ([IntValue] IN (1,2,3,4))");
+        }
+
+        
+        [Fact(Skip = "This needs more work")]
+        public void ShouldParseSqlInClauseForVariableValue()
+        {
+            //var stuff = new ExpressionToSql();
+
+            //var arrayValues = "1,2,3,4";
+
+            //var sql3 = stuff.GenerateWhereClause<ExpressionToSqlTestsDto>(w => SqlFunction.In(w.IntValue, arrayValues));
+            //sql3.Should().Be("WHERE ([IntValue] IN (1,2,3,4))");
+
+            //var differentValues = @"""1"", ""2"", ""3"", ""4""";
+
+            //var sql4 = stuff.GenerateWhereClause<ExpressionToSqlTestsDto>(w => SqlFunction.In(w.IntValue, differentValues));
+            //sql4.Should().Be(@"WHERE ([IntValue] IN (""1"", ""2"", ""3"", ""4""))");
+        }
+
+        [Fact(Skip = "This needs more work")]
+        public void ShouldParseSqlInClauseAlone()
+        {
+            var stuff = new ExpressionToSql();
+
+            var arrayValues = "1,2,3,4";
+
+            var sql3 = stuff.GenerateWhereClause<ExpressionToSqlTestsDto>(w => SqlFunction.In(w.IntValue, arrayValues));
+            sql3.Should().Be("WHERE ([IntValue] IN (1,2,3,4))");
+        }
+
+        [Fact]
+        public void ShouldParseSqlInClauseWithOtherConditions()
+        {
+            var stuff = new ExpressionToSql();
+            
+            var differentValues = "1,2,3,4";
+
+            var sql4 = stuff.GenerateWhereClause<ExpressionToSqlTestsDto>(w => w.IntValue >= 10 && SqlFunction.In(w.IntValue, differentValues));
+            sql4.Should().Be("WHERE (([IntValue] >= 10) AND ([IntValue] IN (1,2,3,4)))");
         }
     }
 }

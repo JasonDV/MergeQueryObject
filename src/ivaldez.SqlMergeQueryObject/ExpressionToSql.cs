@@ -1,8 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace ivaldez.Sql.SqlMergeQueryObject
 {
+    public static class SqlFunction
+    {
+        public static bool In<S>(S leftSide, string rightSide)
+        {
+            return true;
+        }
+    }
+
+
     public class ExpressionToSql
     {
         public string GenerateWhereClause<T>(Expression<Func<T, object>> expression)
@@ -10,9 +22,7 @@ namespace ivaldez.Sql.SqlMergeQueryObject
             if (expression == null)
                 return "";
 
-            var unaryExpression = (UnaryExpression) expression.Body;
-
-            return "WHERE " + Process(unaryExpression);
+            return "WHERE " + Process(expression.Body);
         }
 
         private static string Process(Expression expression)
@@ -30,6 +40,11 @@ namespace ivaldez.Sql.SqlMergeQueryObject
                      && ((BinaryExpression) expression).Left is BinaryExpression)
             {
                 leftText += Process(((BinaryExpression) expression).Left);
+            }
+            else if (expression is MethodCallExpression
+                && (((MethodCallExpression) expression).Method).DeclaringType?.Name == "SqlFunction")
+            {
+                leftText += "[" + ((MemberExpression)((MethodCallExpression)expression).Arguments[0]).Member.Name + "]";
             }
             else
             {
@@ -58,6 +73,35 @@ namespace ivaldez.Sql.SqlMergeQueryObject
             {
                 rightText += Process(((BinaryExpression) expression).Right);
             }
+            else if (expression is MethodCallExpression
+                     && (((MethodCallExpression) expression).Method).DeclaringType?.Name == "SqlFunction")
+            {
+                var methodCallExpression = (MethodCallExpression)expression;
+                if (methodCallExpression.Arguments[1] is NewArrayExpression)
+                {
+                    var memberExpression =  (NewArrayExpression)(methodCallExpression.Arguments[1]);
+                    rightText += "(" + string.Join(",", memberExpression.Expressions) + ")";
+                }
+                else if (methodCallExpression.Arguments[1].GetType().Name == "FieldExpression" )
+                {
+                    var expressionArg = methodCallExpression.Arguments[1];
+
+                    var memberName =  ((FieldInfo)expressionArg.GetType()
+                        .GetProperty("Member")
+                        .GetValue(methodCallExpression.Arguments[1]))
+                        .Name;
+
+                    var constantExpression = (ConstantExpression)expressionArg.GetType()
+                        .GetProperty("Expression")
+                        .GetValue(methodCallExpression.Arguments[1]);
+                    
+                    var constantExpressionValue = constantExpression.Value;
+                    var value = constantExpressionValue.GetType()
+                        .GetField(memberName).GetValue(constantExpressionValue);
+
+                    rightText += "(" + value + ")";
+                }
+            }
             else
             {
                 if (expression is UnaryExpression)
@@ -78,44 +122,52 @@ namespace ivaldez.Sql.SqlMergeQueryObject
         private static string GetOperation(Expression body)
         {
             var operation = "";
-            var operationName = body.NodeType;
+            var operationName = body.NodeType.ToString();
 
             if (body is UnaryExpression)
             {
-                operationName = ((UnaryExpression) body).Operand.NodeType;
+                operationName = ((UnaryExpression) body).Operand.NodeType.ToString();
+            }
+            else if (body is MethodCallExpression)
+            {
+                operationName = ((MethodCallExpression) body).Method.Name;
             }
 
-            if (operationName.ToString() == "GreaterThan")
+            if (operationName == "GreaterThan")
             {
                 operation = ">";
             }
-            else if (operationName.ToString() == "GreaterThanOrEqual")
+            else if (operationName == "GreaterThanOrEqual")
             {
                 operation = ">=";
             }
-            else if (operationName.ToString() == "LessThanOrEqual")
+            else if (operationName == "LessThanOrEqual")
             {
                 operation = "<=";
             }
-            else if (operationName.ToString() == "LessThan")
+            else if (operationName == "LessThan")
             {
                 operation = "<";
             }
-            else if (operationName.ToString() == "AndAlso")
+            else if (operationName == "AndAlso")
             {
                 operation = "AND";
             }
-            else if (operationName.ToString() == "Equal")
+            else if (operationName == "Equal")
             {
                 operation = "=";
             }
-            else if (operationName.ToString() == "NotEqual")
+            else if (operationName == "NotEqual")
             {
                 operation = "<>";
             }
-            else if (operationName.ToString() == "OrElse")
+            else if (operationName == "OrElse")
             {
                 operation = "OR";
+            }
+            else if (operationName == "In")
+            {
+                operation = "IN";
             }
 
             return operation;
