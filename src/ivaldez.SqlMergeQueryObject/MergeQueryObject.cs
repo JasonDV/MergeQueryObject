@@ -147,7 +147,7 @@ CREATE CLUSTERED INDEX [IdxPrimaryKey] ON {tempTableName}
         {
             var primaryKey = GetRenamedPrimaryKey(request, bulkLoaderRenameRules);
             var joinList = primaryKey
-                .Select(t => $"T.[{t}] = S.[{t}]");
+                .Select(t => $"(T.[{t}] = S.[{t}] OR (T.[{t}] IS NULL AND S.[{t}] IS NULL))");
             var onClause = string.Join(" AND " + Environment.NewLine, joinList);
 
             var identityInsertOn = request.KeepIdentityColumnValueOnInsert

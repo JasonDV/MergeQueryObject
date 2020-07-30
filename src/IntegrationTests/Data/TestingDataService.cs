@@ -53,8 +53,8 @@ CREATE TABLE [dbo].[Sample](
 	[Pk1] [int] NOT NULL,
 	[Pk2] [nvarchar](10) NOT NULL,
 	[TextValue] [nvarchar](200) NULL,
-	[IntValue] [int] NOT NULL,
-	[DecimalValue] [decimal](18, 8) NOT NULL,
+	[IntValue] [int] NULL,
+	[DecimalValue] [decimal](18, 8) NULL,
     [IsDeleted] [bit] DEFAULT(0),
     [IsRemovable] [bit] DEFAULT(0)
  CONSTRAINT [PK_Sample] PRIMARY KEY CLUSTERED 

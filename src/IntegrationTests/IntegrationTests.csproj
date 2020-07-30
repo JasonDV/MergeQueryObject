@@ -90,6 +90,7 @@
     <Compile Include="MergeQuery\MergeQueryObjectTestsForCustomConnection.cs" />
     <Compile Include="MergeQuery\MergeQueryObjectTestsForInsertOnly.cs" />
     <Compile Include="MergeQuery\MergeQueryObjectTestsForLogging.cs" />
+    <Compile Include="MergeQuery\Issues\MergeQueryObjectTestsForIssue12.cs" />
     <Compile Include="MergeQuery\MergeQueryObjectTestsForRequestOptions.cs" />
     <Compile Include="Data\SampleCompositeKeyDto.cs" />
     <Compile Include="Data\SampleSurrogateKeyDto.cs" />
