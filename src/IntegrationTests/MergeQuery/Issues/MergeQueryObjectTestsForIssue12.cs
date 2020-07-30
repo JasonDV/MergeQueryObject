@@ -4,7 +4,7 @@ using ivaldez.Sql.IntegrationTests.Data;
 using ivaldez.Sql.SqlMergeQueryObject;
 using Xunit;
 
-namespace ivaldez.Sql.IntegrationTests.MergeQuery
+namespace ivaldez.Sql.IntegrationTests.MergeQuery.Issues
 {
     public class MergeQueryObjectTestsForNullableKey
     {
