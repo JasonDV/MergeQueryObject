@@ -71,6 +71,7 @@ namespace ivaldez.Sql.SqlMergeQueryObject
                         attemptCount++;
                         request.InfoLogger($"Retry attempt {attemptCount} of {request.RetryCount} after {request.RetryDelayMilliseconds}ms delay");
                         
+                        // Note: This is a synchronous blocking operation
                         if (request.RetryDelayMilliseconds > 0)
                         {
                             System.Threading.Thread.Sleep(request.RetryDelayMilliseconds);
@@ -113,7 +114,7 @@ namespace ivaldez.Sql.SqlMergeQueryObject
         private bool ShouldRetryOnException(Exception ex, Type[] retryOnExceptionTypes, int attemptCount, int maxAttempts)
         {
             // No more retries available
-            if (attemptCount >= maxAttempts - 1)
+            if (attemptCount + 1 >= maxAttempts)
             {
                 return false;
             }

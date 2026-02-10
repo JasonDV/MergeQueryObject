@@ -351,5 +351,27 @@ namespace ivaldez.Sql.IntegrationTests.MergeQuery
             // Verify that the delay was respected (should be at least 200ms)
             elapsedTimeBeforeSecondAttempt.TotalMilliseconds.Should().BeGreaterOrEqualTo(200);
         }
+
+        [Fact]
+        public void ShouldThrowOnNegativeRetryCount()
+        {
+            var request = new MergeRequest<SampleSurrogateKeyDifferentNamePrimaryKeyDto>();
+            
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
+                request.RetryCount = -1;
+            });
+        }
+
+        [Fact]
+        public void ShouldThrowOnNegativeRetryDelayMilliseconds()
+        {
+            var request = new MergeRequest<SampleSurrogateKeyDifferentNamePrimaryKeyDto>();
+            
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
+                request.RetryDelayMilliseconds = -1;
+            });
+        }
     }
 }

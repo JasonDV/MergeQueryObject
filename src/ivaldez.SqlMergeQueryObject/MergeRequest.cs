@@ -133,13 +133,37 @@ namespace ivaldez.Sql.SqlMergeQueryObject
         ///     The number of times to retry the merge operation on specified exceptions.
         ///     Default value is 0 (no retries).
         /// </summary>
-        public int RetryCount { get; set; } = 0;
+        public int RetryCount
+        {
+            get => _retryCount;
+            set
+            {
+                if (value < 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(RetryCount), "RetryCount cannot be negative.");
+                }
+                _retryCount = value;
+            }
+        }
+        private int _retryCount = 0;
 
         /// <summary>
         ///     The delay in milliseconds between retry attempts.
         ///     Default value is 0.
         /// </summary>
-        public int RetryDelayMilliseconds { get; set; } = 0;
+        public int RetryDelayMilliseconds
+        {
+            get => _retryDelayMilliseconds;
+            set
+            {
+                if (value < 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(RetryDelayMilliseconds), "RetryDelayMilliseconds cannot be negative.");
+                }
+                _retryDelayMilliseconds = value;
+            }
+        }
+        private int _retryDelayMilliseconds = 0;
 
         /// <summary>
         ///     The types of exceptions that should trigger a retry.
