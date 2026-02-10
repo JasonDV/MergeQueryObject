@@ -85,9 +85,16 @@ namespace ivaldez.Sql.SqlMergeQueryObject
                 {
                     if (tableCreated && string.IsNullOrEmpty(tempTableName) == false)
                     {
-                        var dropSql = $@"DROP TABLE {tempTableName};";
-                        request.InfoLogger(dropSql);
-                        request.ExecuteSql(connection, dropSql, request);
+                        try
+                        {
+                            var dropSql = $@"DROP TABLE {tempTableName};";
+                            request.InfoLogger(dropSql);
+                            request.ExecuteSql(connection, dropSql, request);
+                        }
+                        catch (Exception dropEx)
+                        {
+                            request.ErrorLogger($"Failed to drop temp table: {dropEx.Message}");
+                        }
                         
                         // Reset for potential retry
                         tableCreated = false;
