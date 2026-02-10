@@ -32,38 +32,110 @@ namespace ivaldez.Sql.SqlMergeQueryObject
         {
             var tableCreated = false;
             var tempTableName = "";
+            var attemptCount = 0;
+            var maxAttempts = request.RetryCount + 1;
+            Exception lastException = null;
 
-            try
-            { 
-                var response = BuildTempTableClone(
-                    connection,
-                    request,
-                    tableName =>
-                    {
-                        tempTableName = tableName;
-                        tableCreated = true;
-                    });
-
-                var sql = GetMergeSql(response.TempTableName, request, response.BulkLoaderRenameRules);
-
-                request.InfoLogger($"SQL: {sql}");
-
-                request.ExecuteSql(connection, sql, request);
-            }
-            catch (Exception ex)
+            while (attemptCount < maxAttempts)
             {
-                request.ErrorLogger(ex.Message);
-                throw;
-            }
-            finally
-            {
-                if (tableCreated && string.IsNullOrEmpty(tempTableName) == false)
+                try
+                { 
+                    var response = BuildTempTableClone(
+                        connection,
+                        request,
+                        tableName =>
+                        {
+                            tempTableName = tableName;
+                            tableCreated = true;
+                        });
+
+                    var sql = GetMergeSql(response.TempTableName, request, response.BulkLoaderRenameRules);
+
+                    request.InfoLogger($"SQL: {sql}");
+
+                    request.ExecuteSql(connection, sql, request);
+                    
+                    // Success - break out of retry loop
+                    return;
+                }
+                catch (Exception ex)
                 {
-                    var dropSql = $@"DROP TABLE {tempTableName};";
-                    request.InfoLogger(dropSql);
-                    request.ExecuteSql(connection, dropSql, request);
+                    lastException = ex;
+                    request.ErrorLogger(ex.Message);
+                    
+                    // Check if we should retry
+                    var shouldRetry = ShouldRetryOnException(ex, request.RetryOnExceptionTypes, attemptCount, maxAttempts);
+                    
+                    if (shouldRetry)
+                    {
+                        attemptCount++;
+                        request.InfoLogger($"Retry attempt {attemptCount} of {request.RetryCount} after {request.RetryDelayMilliseconds}ms delay");
+                        
+                        // Note: This is a synchronous blocking operation
+                        if (request.RetryDelayMilliseconds > 0)
+                        {
+                            System.Threading.Thread.Sleep(request.RetryDelayMilliseconds);
+                        }
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                finally
+                {
+                    if (tableCreated && string.IsNullOrEmpty(tempTableName) == false)
+                    {
+                        try
+                        {
+                            var dropSql = $@"DROP TABLE {tempTableName};";
+                            request.InfoLogger(dropSql);
+                            request.ExecuteSql(connection, dropSql, request);
+                        }
+                        catch (Exception dropEx)
+                        {
+                            request.ErrorLogger($"Failed to drop temp table: {dropEx.Message}");
+                        }
+                        
+                        // Reset for potential retry
+                        tableCreated = false;
+                        tempTableName = "";
+                    }
                 }
             }
+            
+            // If we exhausted all retries, throw the last exception
+            if (lastException != null)
+            {
+                throw lastException;
+            }
+        }
+
+        private bool ShouldRetryOnException(Exception ex, Type[] retryOnExceptionTypes, int attemptCount, int maxAttempts)
+        {
+            // No more retries available
+            if (attemptCount + 1 >= maxAttempts)
+            {
+                return false;
+            }
+            
+            // No retry exception types specified
+            if (retryOnExceptionTypes == null || retryOnExceptionTypes.Length == 0)
+            {
+                return false;
+            }
+            
+            // Check if the exception type matches any of the specified types
+            var exceptionType = ex.GetType();
+            foreach (var retryType in retryOnExceptionTypes)
+            {
+                if (retryType.IsAssignableFrom(exceptionType))
+                {
+                    return true;
+                }
+            }
+            
+            return false;
         }
 
         private BuildTempTableCloneResponse BuildTempTableClone<T>(
